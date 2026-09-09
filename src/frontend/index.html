@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Local ChatBot</title>
+    <!-- Bundles base, glass, layout, messages, and composer styles. -->
+    <link rel="stylesheet" href="./style/main.css" />
+  </head>
+  <body>
+    <!-- Root shell: header + conversation column. -->
+    <div class="app">
+      <header class="header glass">
+        <h1>Local ChatBot</h1>
+      </header>
+
+      <main class="conversation">
+        <!-- Live message list. Assistant left, user right. -->
+        <div id="chat-thread" class="thread" aria-live="polite">
+          <p class="empty">How can I help you?</p>
+        </div>
+
+        <!-- Input sits inside the conversation, with a send arrow. -->
+        <form id="chat-form" class="composer">
+          <div class="composer-box glass">
+            <textarea
+              id="chat-input"
+              rows="1"
+              placeholder="Type a message..."
+              autocomplete="off"
+            ></textarea>
+            <button type="submit" id="chat-send" aria-label="Send">
+              <!-- Up-arrow icon used instead of a text label. -->
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+    <!-- App entry point: wires API, thread, and composer modules. -->
+    <script type="module" src="./script/main.js"></script>
+  </body>
+</html>
