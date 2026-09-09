@@ -53,6 +53,15 @@ conda activate "$conda_env_name" || {
 echo "Conda environment activated."
 echo
 
+# Git Bash + conda often sets SSL_CERT_FILE to a missing path, which breaks HTTPS.
+if [ -n "${SSL_CERT_FILE:-}" ] && [ ! -f "$SSL_CERT_FILE" ]; then
+  unset SSL_CERT_FILE REQUESTS_CA_BUNDLE CURL_CA_BUNDLE
+fi
+if [ -f "${CONDA_PREFIX}/Library/ssl/cacert.pem" ]; then
+  export SSL_CERT_FILE="${CONDA_PREFIX}/Library/ssl/cacert.pem"
+  export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE"
+fi
+
 echo "_____________________________________________________________________________"
 echo "Launching project..."
 echo
