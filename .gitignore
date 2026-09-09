@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets (keep infra/.env.example)
+.env
+.envrc
+infra/env
+infra/.env
+!infra/.env.example
+
+# Local models and Hugging Face caches
+models/
+*.safetensors
+*.gguf
+.cache/
+.huggingface/
+
+# Logs and OS files
+*.log
+Thumbs.db
+.DS_Store
