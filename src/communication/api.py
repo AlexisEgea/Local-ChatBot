@@ -9,14 +9,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-# Backend helpers (llm_client) live next to this package.
+# Backend helpers (llm_client) live under backend/model.
 BACKEND_DIR = Path(__file__).resolve().parents[1] / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from communication.ws_management.event_queue import event_queue
 from communication.ws_management.ws_manager import broadcast, connect, disconnect
-from llm_client import complete_chat
+from model.llm_client import complete_chat
 
 FRONTEND_DIR = Path(__file__).resolve().parents[1] / "frontend"
 
