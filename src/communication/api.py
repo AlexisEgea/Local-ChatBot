@@ -1,6 +1,7 @@
 """FastAPI app: chat endpoint, websocket hub, and static frontend."""
 
 import asyncio
+import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
 import sys
@@ -92,6 +93,7 @@ async def create_chat(payload: ChatRequest) -> ChatResponse:
             [message.model_dump() for message in payload.messages],
         )
     except Exception as error:
+        traceback.print_exc()
         raise HTTPException(status_code=502, detail=str(error)) from error
 
     return ChatResponse(content=content)
