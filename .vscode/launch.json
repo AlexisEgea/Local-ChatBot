@@ -2,20 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python Backend Debug",
-      "type": "debugpy",
-      "request": "launch",
-      "python": "${userHome}\\anaconda3\\envs\\Local-ChatBot\\python.exe",
-      "program": "${workspaceFolder}/src/backend/main.py",
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/src/backend",
-      "envFile": "${workspaceFolder}/infra/env",
-      "env": {
-        "CONDA_DEFAULT_ENV": "Local-ChatBot",
-        "CONDA_PREFIX": "${userHome}\\anaconda3\\envs\\Local-ChatBot"
-      }
-    },
-    {
       "name": "Python Communication Server",
       "type": "debugpy",
       "request": "launch",
