@@ -4,42 +4,84 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Local ChatBot</title>
-    <!-- Bundles base, glass, layout, messages, and composer styles. -->
+    <!-- Bundles base, glass, layout, sidebar, messages, and composer styles. -->
     <link rel="stylesheet" href="./style/main.css" />
   </head>
   <body>
-    <!-- Root shell: header + conversation column. -->
-    <div class="app">
-      <header class="header glass">
+    <!-- Root shell: click the title to expand the workspace and reveal the menu. -->
+    <div class="app" id="app">
+      <button type="button" class="header glass" id="app-toggle" aria-expanded="false">
         <h1>Local ChatBot</h1>
-      </header>
+      </button>
 
-      <main class="conversation">
-        <!-- Live message list. Assistant left, user right. -->
-        <div id="chat-thread" class="thread" aria-live="polite">
-          <p class="empty">How can I help you?</p>
-        </div>
+      <div class="workspace">
+        <!-- Left menu, visible only when the panel is expanded. -->
+        <aside class="sidebar glass" id="sidebar" hidden>
+          <section class="sidebar-section">
+            <h2>How to choose</h2>
+            <label class="sidebar-option">
+              <input type="radio" name="choose-mode" value="default" checked />
+              Use a default layout
+            </label>
+            <label class="sidebar-option">
+              <input type="radio" name="choose-mode" value="picker" />
+              Click the conversation bar to choose
+            </label>
+          </section>
 
-        <!-- Input sits inside the conversation, with a send arrow. -->
-        <form id="chat-form" class="composer">
-          <div class="composer-box glass">
-            <textarea
-              id="chat-input"
-              rows="1"
-              placeholder="Type a message..."
-              autocomplete="off"
-            ></textarea>
-            <button type="submit" id="chat-send" aria-label="Send">
-              <!-- Up-arrow icon used instead of a text label. -->
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
+          <section class="sidebar-section" id="default-layout-section">
+            <h2>Default layout</h2>
+            <button type="button" class="sidebar-layout is-active" data-layout="user">
+              Single bar
+              <span>User message only</span>
             </button>
+            <button type="button" class="sidebar-layout" data-layout="system-user">
+              Two bars
+              <span>System prompt and user message</span>
+            </button>
+            <button type="button" class="sidebar-layout" data-layout="cgse">
+              Four bars
+              <span>Context, Goal, Source, Expectation</span>
+            </button>
+          </section>
+        </aside>
+
+        <main class="conversation" id="conversation">
+          <!-- Live message list. Assistant left, user right. -->
+          <div id="chat-thread" class="thread" aria-live="polite">
+            <p class="empty">How can I help you?</p>
           </div>
-        </form>
-      </main>
+
+          <!-- Input sits inside the conversation; fields change with the selected layout. -->
+          <form id="chat-form" class="composer">
+            <div class="composer-stack glass" id="composer-stack">
+              <div class="composer-picker" id="composer-picker" hidden>
+                <button type="button" class="composer-choice" data-layout="user">
+                  Single bar
+                  <span>User message only</span>
+                </button>
+                <button type="button" class="composer-choice" data-layout="system-user">
+                  Two bars
+                  <span>System prompt and user message</span>
+                </button>
+                <button type="button" class="composer-choice" data-layout="cgse">
+                  Four bars
+                  <span>Context, Goal, Source, Expectation</span>
+                </button>
+              </div>
+              <div class="composer-row" id="composer-row">
+                <div id="composer-fields" class="composer-fields"></div>
+                <button type="submit" id="chat-send" aria-label="Send">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+        </main>
+      </div>
     </div>
-    <!-- App entry point: wires API, thread, and composer modules. -->
     <script type="module" src="./script/main.js"></script>
   </body>
 </html>
