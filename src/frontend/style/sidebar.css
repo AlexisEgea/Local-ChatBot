@@ -1,0 +1,63 @@
+/* Left menu shown after Local ChatBot expands the panel. */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  border-radius: 22px;
+  overflow-y: auto;
+}
+
+.app.is-expanded .sidebar {
+  display: flex;
+}
+
+.sidebar-section h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5c616a;
+}
+
+.sidebar-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sidebar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.28);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-layout span {
+  font-size: 12px;
+  color: #5c616a;
+}
+
+.sidebar-layout.is-active {
+  border-color: rgba(55, 130, 255, 0.55);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.sidebar-section.is-disabled .sidebar-layout {
+  opacity: 0.45;
+  pointer-events: none;
+}
