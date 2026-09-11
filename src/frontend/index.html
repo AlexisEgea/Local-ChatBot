@@ -18,29 +18,29 @@
         <!-- Left menu, visible only when the panel is expanded. -->
         <aside class="sidebar glass" id="sidebar" hidden>
           <section class="sidebar-section">
-            <h2>How to choose</h2>
+            <h2>Chat Mode</h2>
             <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="default" checked />
-              Use a default layout
+              <input type="radio" name="choose-mode" value="picker" checked />
+              Chat Bar
             </label>
             <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="picker" />
-              Click the conversation bar to choose
+              <input type="radio" name="choose-mode" value="default" />
+              Default 
             </label>
           </section>
 
-          <section class="sidebar-section" id="default-layout-section">
-            <h2>Default layout</h2>
+          <section class="sidebar-section" id="default-layout-section" hidden>
+            <h2>chat</h2>
             <button type="button" class="sidebar-layout is-active" data-layout="user">
-              Single bar
-              <span>User message only</span>
+              Default
+              <span>User message</span>
             </button>
             <button type="button" class="sidebar-layout" data-layout="system-user">
-              Two bars
-              <span>System prompt and user message</span>
+              Role-Based Prompt
+              <span>System and User Prompts</span>
             </button>
             <button type="button" class="sidebar-layout" data-layout="cgse">
-              Four bars
+              CGSE 
               <span>Context, Goal, Source, Expectation</span>
             </button>
           </section>
@@ -57,15 +57,15 @@
             <div class="composer-stack glass" id="composer-stack">
               <div class="composer-picker" id="composer-picker" hidden>
                 <button type="button" class="composer-choice" data-layout="user">
-                  Single bar
-                  <span>User message only</span>
+                  Default
+                  <span>User Message</span>
                 </button>
                 <button type="button" class="composer-choice" data-layout="system-user">
-                  Two bars
-                  <span>System prompt and user message</span>
+                  Role-Based Prompt
+                  <span>System and User Prompts</span>
                 </button>
                 <button type="button" class="composer-choice" data-layout="cgse">
-                  Four bars
+                  CGSE 
                   <span>Context, Goal, Source, Expectation</span>
                 </button>
               </div>

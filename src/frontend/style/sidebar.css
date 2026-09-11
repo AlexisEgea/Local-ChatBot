@@ -56,8 +56,3 @@
   border-color: rgba(55, 130, 255, 0.55);
   background: rgba(255, 255, 255, 0.55);
 }
-
-.sidebar-section.is-disabled .sidebar-layout {
-  opacity: 0.45;
-  pointer-events: none;
-}

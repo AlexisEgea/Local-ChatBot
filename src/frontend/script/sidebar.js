@@ -36,7 +36,7 @@ export function getChooseMode() {
 }
 
 /**
- * Set the choose-mode radios and disable default-layout buttons in picker mode.
+ * Set the choose-mode radios and show default-layout options only in default mode.
  * @param {"default" | "picker"} mode
  */
 export function setChooseMode(mode) {
@@ -44,7 +44,7 @@ export function setChooseMode(mode) {
   if (input) {
     input.checked = true;
   }
-  defaultLayoutSection.classList.toggle("is-disabled", mode === "picker");
+  defaultLayoutSection.hidden = mode !== "default";
 }
 
 /**
@@ -64,7 +64,7 @@ export function setActiveLayoutButton(layoutId) {
 export function onChooseModeChange(handler) {
   sidebar.addEventListener("change", (event) => {
     if (event.target.name === "choose-mode") {
-      defaultLayoutSection.classList.toggle("is-disabled", event.target.value === "picker");
+      defaultLayoutSection.hidden = event.target.value !== "default";
       handler(event.target.value);
     }
   });
