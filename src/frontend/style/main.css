@@ -1,7 +1,7 @@
 /* Load each UI layer in order: reset, glass, layout, sidebar, messages, composer. */
-@import url("./base.css");
-@import url("./glass.css");
-@import url("./layout.css");
-@import url("./sidebar.css");
-@import url("./messages.css");
-@import url("./composer.css");
+@import url("./theme/base.css");
+@import url("./theme/glass.css");
+@import url("./workspace/layout.css");
+@import url("./workspace/sidebar.css");
+@import url("./conversation/messages.css");
+@import url("./conversation/composer.css");
