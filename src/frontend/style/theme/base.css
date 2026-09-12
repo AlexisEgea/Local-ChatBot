@@ -20,9 +20,8 @@
   --blob-2: rgba(255, 70, 170, 0.28);
   --blob-3: rgba(40, 210, 110, 0.26);
   --blob-4: rgba(255, 170, 40, 0.2);
-  --chip-bg: rgba(255, 255, 255, 0.28);
-  --chip-border: rgba(255, 255, 255, 0.45);
-  --chip-active-bg: rgba(255, 255, 255, 0.55);
+  --choice-bg: rgba(255, 255, 255, 0.28);
+  --choice-border: rgba(255, 255, 255, 0.45);
 }
 
 html[data-theme="dark"] {
@@ -41,9 +40,8 @@ html[data-theme="dark"] {
   --blob-2: rgba(255, 70, 170, 0.2);
   --blob-3: rgba(40, 210, 110, 0.16);
   --blob-4: rgba(255, 170, 40, 0.14);
-  --chip-bg: rgba(255, 255, 255, 0.08);
-  --chip-border: rgba(255, 255, 255, 0.16);
-  --chip-active-bg: rgba(255, 255, 255, 0.16);
+  --choice-bg: rgba(255, 255, 255, 0.08);
+  --choice-border: rgba(255, 255, 255, 0.16);
 }
 
 html,
