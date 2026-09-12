@@ -10,39 +10,24 @@
   <body>
     <!-- Root shell: click the title to expand the workspace and reveal the menu. -->
     <div class="app" id="app">
+      <!-- Extra left panel, same width as Chat Mode, shown when expanded. -->
+      <aside class="side-rail" id="sidebar-outer-left" aria-expanded="false" aria-label="History">
+        <div class="side-rail-content">
+          <section class="sidebar-section">
+            <h2>History</h2>
+          </section>
+        </div>
+      </aside>
+
+      <div class="app-core">
       <button type="button" class="header glass" id="app-toggle" aria-expanded="false">
         <h1>Local ChatBot</h1>
       </button>
 
       <div class="workspace">
-        <!-- Left menu, visible only when the panel is expanded. -->
         <aside class="sidebar glass" id="sidebar" hidden>
           <section class="sidebar-section">
-            <h2>Chat Mode</h2>
-            <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="picker" checked />
-              Chat Bar
-            </label>
-            <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="default" />
-              Default 
-            </label>
-          </section>
-
-          <section class="sidebar-section" id="default-layout-section" hidden>
-            <h2>chat</h2>
-            <button type="button" class="sidebar-layout is-active" data-layout="user">
-              Default
-              <span>User message</span>
-            </button>
-            <button type="button" class="sidebar-layout" data-layout="system-user">
-              Role-Based Prompt
-              <span>System and User Prompts</span>
-            </button>
-            <button type="button" class="sidebar-layout" data-layout="cgse">
-              CGSE 
-              <span>Context, Goal, Source, Expectation</span>
-            </button>
+            <h2>Model</h2>
           </section>
         </aside>
 
@@ -81,6 +66,66 @@
           </form>
         </main>
       </div>
+      </div>
+
+      <!-- Extra right panel, same width as Chat Mode, shown when expanded. -->
+      <aside class="side-rail" id="sidebar-outer-right" aria-expanded="false" aria-label="Chat Mode">
+        <div class="side-rail-content" id="chat-mode">
+          <section class="sidebar-section">
+            <h2>Chat Mode</h2>
+            <label class="sidebar-option">
+              <input type="radio" name="choose-mode" value="picker" checked />
+              Chat Bar
+            </label>
+            <label class="sidebar-option">
+              <input type="radio" name="choose-mode" value="default" />
+              Default 
+            </label>
+          </section>
+
+          <section class="sidebar-section" id="default-layout-section" hidden>
+            <h2>chat</h2>
+            <button type="button" class="sidebar-layout is-active" data-layout="user">
+              Default
+              <span>User message</span>
+            </button>
+            <button type="button" class="sidebar-layout" data-layout="system-user">
+              Role-Based Prompt
+              <span>System and User Prompts</span>
+            </button>
+            <button type="button" class="sidebar-layout" data-layout="cgse">
+              CGSE 
+              <span>Context, Goal, Source, Expectation</span>
+            </button>
+          </section>
+
+          <section class="sidebar-section">
+            <h2>Theme</h2>
+            <label class="sidebar-option">
+              <input type="radio" name="theme-mode" value="light" checked />
+              Light
+            </label>
+            <label class="sidebar-option">
+              <input type="radio" name="theme-mode" value="dark" />
+              Dark
+            </label>
+            <label class="sidebar-option">
+              <input type="radio" name="theme-mode" value="custom" />
+              Custom
+            </label>
+            <div id="theme-custom-section" hidden>
+              <label class="theme-color">
+                Background
+                <input type="color" id="theme-bg-color" value="#e7e9ee" />
+              </label>
+              <label class="theme-color">
+                Liquid glass
+                <input type="color" id="theme-glass-color" value="#ffffff" />
+              </label>
+            </div>
+          </section>
+        </div>
+      </aside>
     </div>
     <script type="module" src="./script/main.js"></script>
   </body>
