@@ -1,0 +1,35 @@
+/* Liquid-glass look: colorful backdrop blobs plus frosted panels. */
+
+/* Soft color washes behind every glass panel. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 42% 32% at 8% 12%, var(--blob-1), transparent 62%),
+    radial-gradient(ellipse 34% 28% at 88% 10%, var(--blob-2), transparent 58%),
+    radial-gradient(ellipse 28% 22% at 72% 78%, var(--blob-3), transparent 55%),
+    radial-gradient(ellipse 36% 30% at 18% 88%, var(--blob-4), transparent 58%);
+}
+
+/* Center highlight so the glass refraction reads better. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 30%, var(--center-glow), transparent 48%);
+}
+
+/* Shared frosted surface used by header, bubbles, and composer. */
+.glass {
+  background: linear-gradient(165deg, var(--glass-from) 0%, var(--glass-to) 100%);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 1px var(--glass-inset-top),
+    inset 0 -10px 18px var(--glass-inset-bottom),
+    0 10px 28px var(--glass-drop);
+}
