@@ -3,7 +3,7 @@
  * Coordinates composer input, thread rendering, the sidebar, and the backend API.
  */
 
-import { sendChat } from "./api.js";
+import { sendChat } from "./api/chat.js";
 import {
   clearInput,
   focusInput,
@@ -14,18 +14,21 @@ import {
   renderFields,
   setBusy,
   setPickerMode,
-} from "./composer.js";
-import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT } from "./layouts.js";
+} from "./conversation/composer.js";
+import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT } from "./conversation/layouts.js";
 import {
   getChooseMode,
   onChooseModeChange,
   onDefaultLayoutClick,
+  onSidePanelToggle,
   onToggle,
   setActiveLayoutButton,
   setChooseMode,
   setExpanded,
-} from "./sidebar.js";
-import { appendMessage, markError, scrollToBottom } from "./thread.js";
+  setSidePanelOpen,
+} from "./workspace/sidebar.js";
+import { initTheme } from "./workspace/theme.js";
+import { appendMessage, markError, scrollToBottom } from "./conversation/thread.js";
 
 /** Full conversation sent to the backend on every request. */
 const messages = [];
@@ -139,6 +142,10 @@ async function handleSubmit() {
 }
 
 onToggle(() => setExpanded(!document.getElementById("app").classList.contains("is-expanded")));
+onSidePanelToggle((side) => {
+  const panel = document.getElementById(side === "left" ? "sidebar-outer-left" : "sidebar-outer-right");
+  setSidePanelOpen(side, !panel.classList.contains("is-open"));
+});
 onChooseModeChange(applyChooseMode);
 onDefaultLayoutClick(applyLayout);
 onLayoutPick(applyLayout);
@@ -146,3 +153,4 @@ onSubmit(handleSubmit);
 
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
+initTheme();
