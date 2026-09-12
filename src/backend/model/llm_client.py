@@ -48,4 +48,9 @@ def complete_chat(messages: list[dict[str, str]], max_tokens: int = 256) -> str:
         messages=messages,
         max_tokens=max_tokens,
     )
-    return output.choices[0].message.content or ""
+    message = output.choices[0].message
+    content = (message.content or "").strip()
+    if content:
+        return content
+    reasoning = getattr(message, "reasoning", None) or getattr(message, "reasoning_content", None)
+    return (reasoning or "").strip()
