@@ -1,7 +1,7 @@
 /* Bottom composer: text fields and send arrow on one row. */
 
 .composer {
-  padding: 8px 4px 20px;
+  padding: 8px 0 0;
 }
 
 .composer-stack {
@@ -46,7 +46,12 @@
 
 .composer-choice span {
   font-size: 13px;
-  color: #5c616a;
+  color: var(--page-muted);
+}
+
+html[data-theme="dark"] .composer-choice {
+  background: var(--chip-bg);
+  border-color: var(--chip-border);
 }
 
 .composer-fields {
@@ -72,7 +77,7 @@
 }
 
 .composer textarea::placeholder {
-  color: #7a808a;
+  color: var(--page-placeholder);
 }
 
 .composer-row > button {

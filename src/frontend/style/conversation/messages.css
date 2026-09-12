@@ -11,7 +11,7 @@
 
 .empty {
   margin: auto;
-  color: #6d717a;
+  color: var(--page-muted);
   font-size: 22px;
   font-weight: 500;
 }

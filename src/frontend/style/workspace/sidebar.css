@@ -1,0 +1,106 @@
+/* Left menu shown after Local ChatBot expands the panel. */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  border-radius: 22px;
+  overflow-y: auto;
+}
+
+.app.is-expanded .sidebar {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+}
+
+.side-rail {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 22px;
+  cursor: pointer;
+}
+
+.side-rail.is-open {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.side-rail:not(.is-open) {
+  border: 0;
+  background: transparent;
+}
+
+.side-rail:not(.is-open) .side-rail-content {
+  display: none;
+}
+
+.sidebar-section h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--page-muted);
+}
+
+.sidebar-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sidebar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--chip-border);
+  border-radius: 14px;
+  background: var(--chip-bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-layout span {
+  font-size: 12px;
+  color: var(--page-muted);
+}
+
+.sidebar-layout.is-active {
+  border-color: rgba(55, 130, 255, 0.55);
+  background: var(--chip-active-bg);
+}
+
+.theme-color {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.theme-color input[type="color"] {
+  width: 36px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--chip-border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
