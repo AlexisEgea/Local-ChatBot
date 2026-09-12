@@ -35,23 +35,18 @@
   gap: 4px;
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.35);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  background: var(--choice-bg);
+  border: 1px solid var(--choice-border);
 }
 
 .composer-choice span {
   font-size: 13px;
   color: var(--page-muted);
-}
-
-html[data-theme="dark"] .composer-choice {
-  background: var(--chip-bg);
-  border-color: var(--chip-border);
 }
 
 .composer-fields {
