@@ -25,6 +25,9 @@ models/
 .cache/
 .huggingface/
 
+# Saved local conversations (keep the empty folder)
+data/history/*.json
+
 # Logs and OS files
 *.log
 Thumbs.db
