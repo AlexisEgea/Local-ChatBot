@@ -1,7 +1,3 @@
-/**
- * Conversation layout ids and field definitions.
- */
-
 export const LAYOUTS = {
   user: {
     id: "user",

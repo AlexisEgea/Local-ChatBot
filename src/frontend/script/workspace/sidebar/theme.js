@@ -1,6 +1,4 @@
-/**
- * Light, dark, and custom page/glass colors from the Chat Mode panel.
- */
+/** Light, dark, and custom page/glass colors from the Chat Mode panel. */
 
 const STORAGE_KEY = "local-chatbot-theme";
 const CUSTOM_VARS = [
@@ -19,9 +17,8 @@ const CUSTOM_VARS = [
   "--blob-2",
   "--blob-3",
   "--blob-4",
-  "--chip-bg",
-  "--chip-border",
-  "--chip-active-bg",
+  "--choice-bg",
+  "--choice-border",
 ];
 
 const root = document.documentElement;
@@ -29,10 +26,7 @@ const customSection = document.getElementById("theme-custom-section");
 const bgInput = document.getElementById("theme-bg-color");
 const glassInput = document.getElementById("theme-glass-color");
 
-/**
- * @param {string} hex
- * @returns {{ r: number, g: number, b: number }}
- */
+/** Parse a hex color into RGB channels. */
 function hexToRgb(hex) {
   const raw = hex.replace("#", "");
   const full = raw.length === 3 ? raw.split("").map((char) => char + char).join("") : raw;
@@ -40,34 +34,26 @@ function hexToRgb(hex) {
   return { r: (value >> 16) & 255, g: (value >> 8) & 255, b: value & 255 };
 }
 
-/**
- * @param {string} hex
- * @param {number} alpha
- * @returns {string}
- */
+/** Build an rgba() CSS color from a hex value. */
 function rgba(hex, alpha) {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-/**
- * @param {string} hex
- * @returns {number}
- */
+/** Return relative luminance of a hex color, 0 (dark) to 1 (light). */
 function luminance(hex) {
   const { r, g, b } = hexToRgb(hex);
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 }
 
+/** Remove inline custom-theme CSS variables from the document. */
 function clearCustomVars() {
   for (const name of CUSTOM_VARS) {
     root.style.removeProperty(name);
   }
 }
 
-/**
- * @returns {{ mode: string, background: string, glass: string }}
- */
+/** Read the last theme choice from localStorage. */
 function readStore() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
@@ -76,15 +62,17 @@ function readStore() {
   }
 }
 
+/** Persist the current theme choice to localStorage. */
 function writeStore(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-/** @returns {"light" | "dark" | "custom"} */
+/** Return the selected appearance radio. */
 function selectedMode() {
   return document.querySelector('input[name="theme-mode"]:checked')?.value ?? "light";
 }
 
+/** Apply custom background and glass colors as CSS variables. */
 function applyCustomColors(background, glass) {
   const lightPage = luminance(background) > 0.55;
   const lightGlass = luminance(glass) > 0.55;
@@ -103,11 +91,11 @@ function applyCustomColors(background, glass) {
   root.style.setProperty("--blob-2", rgba(glass, 0.28));
   root.style.setProperty("--blob-3", rgba(background, 0.35));
   root.style.setProperty("--blob-4", rgba(glass, 0.22));
-  root.style.setProperty("--chip-bg", rgba(glass, lightGlass ? 0.28 : 0.18));
-  root.style.setProperty("--chip-border", rgba(glass, lightGlass ? 0.45 : 0.35));
-  root.style.setProperty("--chip-active-bg", rgba(glass, lightGlass ? 0.55 : 0.3));
+  root.style.setProperty("--choice-bg", rgba(glass, lightGlass ? 0.28 : 0.08));
+  root.style.setProperty("--choice-border", rgba(glass, lightGlass ? 0.45 : 0.16));
 }
 
+/** Apply Light, Dark, or Custom from the Chat Mode radios and color inputs. */
 function applyTheme() {
   const mode = selectedMode();
   const background = bgInput.value;

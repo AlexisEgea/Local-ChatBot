@@ -5,11 +5,7 @@
 
 const API_BASE_URL = window.location.origin;
 
-/**
- * Send the full conversation and return the assistant reply.
- * @param {{ role: string, content: string }[]} messages
- * @returns {Promise<string>}
- */
+/** Send the full conversation and return the assistant reply. */
 export async function sendChat(messages) {
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",

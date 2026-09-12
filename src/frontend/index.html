@@ -12,9 +12,13 @@
     <div class="app" id="app">
       <!-- Extra left panel, same width as Chat Mode, shown when expanded. -->
       <aside class="side-rail" id="sidebar-outer-left" aria-expanded="false" aria-label="History">
-        <div class="side-rail-content">
+        <div class="side-rail-content" id="history-panel">
+          <button type="button" class="history-new-chat" id="history-new-chat">
+            New chat
+          </button>
           <section class="sidebar-section">
             <h2>History</h2>
+            <div id="history-list" class="history-list"></div>
           </section>
         </div>
       </aside>
@@ -126,6 +130,10 @@
           </section>
         </div>
       </aside>
+    </div>
+    <div id="history-menu" class="history-menu glass" hidden>
+      <button type="button" data-action="rename">Rename</button>
+      <button type="button" data-action="delete">Delete</button>
     </div>
     <script type="module" src="./script/main.js"></script>
   </body>

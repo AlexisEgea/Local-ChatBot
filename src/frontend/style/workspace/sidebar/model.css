@@ -1,0 +1,25 @@
+/* Model panel shown after Local ChatBot expands the workspace. */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  border-radius: 22px;
+  overflow-y: auto;
+}
+
+.app.is-expanded .sidebar {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+}
+
+.sidebar-section h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--page-muted);
+}

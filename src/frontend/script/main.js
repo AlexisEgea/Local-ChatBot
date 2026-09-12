@@ -4,6 +4,7 @@
  */
 
 import { sendChat } from "./api/chat.js";
+import { createHistory, deleteHistory, getHistory, listHistory, renameHistory, updateHistory } from "./api/history.js";
 import {
   clearInput,
   focusInput,
@@ -16,47 +17,30 @@ import {
   setPickerMode,
 } from "./conversation/composer.js";
 import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT } from "./conversation/layouts.js";
-import {
-  getChooseMode,
-  onChooseModeChange,
-  onDefaultLayoutClick,
-  onSidePanelToggle,
-  onToggle,
-  setActiveLayoutButton,
-  setChooseMode,
-  setExpanded,
-  setSidePanelOpen,
-} from "./workspace/sidebar.js";
-import { initTheme } from "./workspace/theme.js";
-import { appendMessage, markError, scrollToBottom } from "./conversation/thread.js";
+import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
+import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
+import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode } from "./workspace/sidebar/chat-mode.js";
+import { initTheme } from "./workspace/sidebar/theme.js";
+import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
+import { appendMessage, clearThread, markError, renderThread, scrollToBottom } from "./conversation/thread.js";
 
-/** Full conversation sent to the backend on every request. */
 const messages = [];
+let conversationId = null;
+let historySaved = false;
 
-/**
- * Apply a conversation layout and highlight it in the sidebar.
- * @param {string} layoutId
- */
+/** Apply a conversation layout and highlight it in the sidebar. */
 function applyLayout(layoutId) {
   renderFields(layoutId);
   setActiveLayoutButton(layoutId);
 }
 
-/**
- * Switch between a fixed default layout and click-the-panel picking.
- * @param {"default" | "picker"} mode
- */
+/** Switch between a fixed default layout and click-the-panel picking. */
 function applyChooseMode(mode) {
   setChooseMode(mode);
   setPickerMode(mode === "picker");
 }
 
-/**
- * Turn composer fields into OpenAI-style chat messages.
- * @param {string} layoutId
- * @param {Record<string, string>} values
- * @returns {{ role: string, content: string }[]}
- */
+/** Turn composer fields into OpenAI-style chat messages. */
 function buildOutgoingMessages(layoutId, values) {
   if (layoutId === "system-user") {
     const outgoing = [];
@@ -82,12 +66,7 @@ function buildOutgoingMessages(layoutId, values) {
   return [{ role: "user", content: values.user }];
 }
 
-/**
- * Build the user-visible bubble text for the current layout.
- * @param {string} layoutId
- * @param {Record<string, string>} values
- * @returns {string}
- */
+/** Build the user-visible bubble text for the current layout. */
 function displayText(layoutId, values) {
   if (layoutId === "cgse") {
     return buildOutgoingMessages(layoutId, values)[0].content;
@@ -95,12 +74,7 @@ function displayText(layoutId, values) {
   return values.user;
 }
 
-/**
- * Return whether the composer has enough content to send.
- * @param {string} layoutId
- * @param {Record<string, string>} values
- * @returns {boolean}
- */
+/** Return whether the composer has enough content to send. */
 function canSend(layoutId, values) {
   if (layoutId === "cgse") {
     return Boolean(values.context || values.goal || values.source || values.expectation);
@@ -119,6 +93,7 @@ async function handleSubmit() {
   const outgoing = buildOutgoingMessages(layoutId, values);
   const visible = displayText(layoutId, values);
 
+  rememberConversationStart();
   messages.push(...outgoing);
   appendMessage("user", visible);
   clearInput();
@@ -130,6 +105,7 @@ async function handleSubmit() {
     const reply = await sendChat(messages);
     pending.textContent = reply;
     messages.push({ role: "assistant", content: reply });
+    await persistHistory();
   } catch (error) {
     pending.textContent = error instanceof Error ? error.message : String(error);
     markError(pending);
@@ -138,6 +114,117 @@ async function handleSubmit() {
     setBusy(false);
     focusInput();
     scrollToBottom();
+  }
+}
+
+/** Build a local timestamp used as the history file id. */
+function newConversationId() {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+}
+
+/** Keep the start-time id from the first user message. */
+function rememberConversationStart() {
+  if (!conversationId) {
+    conversationId = newConversationId();
+  }
+}
+
+/** Count completed user/assistant rounds in the current thread. */
+function exchangeCount() {
+  return messages.filter((message) => message.role === "assistant").length;
+}
+
+/** Save after the first exchange; replace the title after the second. */
+async function persistHistory() {
+  const exchanges = exchangeCount();
+  if (exchanges < 1) {
+    return;
+  }
+
+  try {
+    if (!historySaved) {
+      const saved = await createHistory(messages, conversationId);
+      conversationId = saved.id;
+      historySaved = true;
+      await refreshHistoryList();
+      return;
+    }
+    await updateHistory(conversationId, messages, exchanges === 2);
+    await refreshHistoryList();
+  } catch (error) {
+    console.error("Could not save conversation", error);
+  }
+}
+
+/** Reload History panel titles from the backend. */
+async function refreshHistoryList() {
+  try {
+    const items = await listHistory();
+    renderHistoryList(items, historySaved ? conversationId : null);
+  } catch (error) {
+    console.error("Could not load history", error);
+  }
+}
+
+/** Clear the current conversation and return to the empty prompt. */
+function startNewChat() {
+  conversationId = null;
+  historySaved = false;
+  messages.length = 0;
+  clearThread();
+  clearInput();
+  setBusy(false);
+  focusInput();
+  refreshHistoryList();
+}
+
+/** Open a saved conversation from the History panel. */
+async function openHistoryItem(id) {
+  if (id === conversationId && historySaved) {
+    return;
+  }
+  try {
+    const saved = await getHistory(id);
+    conversationId = saved.id;
+    historySaved = true;
+    messages.length = 0;
+    messages.push(...saved.messages);
+    renderThread(messages);
+    clearInput();
+    setBusy(false);
+    focusInput();
+    await refreshHistoryList();
+  } catch (error) {
+    console.error("Could not open conversation", error);
+  }
+}
+
+/** Rename or delete a conversation from the History context menu. */
+async function handleHistoryMenu(action, id, currentTitle) {
+  if (action === "rename") {
+    try {
+      await renameHistory(id, currentTitle);
+      await refreshHistoryList();
+    } catch (error) {
+      console.error("Could not rename conversation", error);
+      await refreshHistoryList();
+    }
+    return;
+  }
+
+  if (action === "delete") {
+    try {
+      await deleteHistory(id);
+      if (id === conversationId) {
+        startNewChat();
+        return;
+      }
+      await refreshHistoryList();
+    } catch (error) {
+      console.error("Could not delete conversation", error);
+    }
   }
 }
 
@@ -150,7 +237,11 @@ onChooseModeChange(applyChooseMode);
 onDefaultLayoutClick(applyLayout);
 onLayoutPick(applyLayout);
 onSubmit(handleSubmit);
+onNewChat(startNewChat);
+onHistorySelect(openHistoryItem);
+onHistoryMenuAction(handleHistoryMenu);
 
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
 initTheme();
+refreshHistoryList();

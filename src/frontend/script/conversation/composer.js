@@ -1,7 +1,4 @@
-/**
- * Composer controls.
- * Renders 1, 2, or 4 bars and collects their values on submit.
- */
+/**  Renders 1, 2, or 4 bars and collects their values on submit. */
 
 import { DEFAULT_LAYOUT, LAYOUTS } from "./layouts.js";
 
@@ -15,10 +12,7 @@ const picker = document.getElementById("composer-picker");
 let currentLayout = DEFAULT_LAYOUT;
 let pickerMode = false;
 
-/**
- * Bind auto-resize and Enter-to-send on a composer textarea.
- * @param {HTMLTextAreaElement} textarea
- */
+/** Bind auto-resize and Enter-to-send on a composer textarea. */
 function bindFieldEvents(textarea) {
   textarea.addEventListener("input", () => {
     textarea.style.height = "auto";
@@ -33,19 +27,13 @@ function bindFieldEvents(textarea) {
   });
 }
 
-/**
- * Grow the composer into the center picker, or collapse it back to the bottom bar.
- * @param {boolean} isPicking
- */
+/** Grow the composer into the center picker, or collapse it back to the bottom bar. */
 function setPicking(isPicking) {
   conversation.classList.toggle("is-picking", isPicking);
   picker.hidden = !isPicking;
 }
 
-/**
- * Draw the textareas that belong to the active layout.
- * @param {string} layoutId
- */
+/** Draw the textareas that belong to the active layout. */
 export function renderFields(layoutId) {
   const layout = LAYOUTS[layoutId] ?? LAYOUTS[DEFAULT_LAYOUT];
   currentLayout = layout.id;
@@ -64,15 +52,12 @@ export function renderFields(layoutId) {
   });
 }
 
-/** @returns {string} Active layout id (`user`, `system-user`, or `cgse`). */
+/** Return the active layout id. */
 export function getCurrentLayout() {
   return currentLayout;
 }
 
-/**
- * Read every composer bar as a name-to-trimmed-value map.
- * @returns {Record<string, string>}
- */
+/** Read every composer bar as a name-to-trimmed-value map. */
 export function getComposerValues() {
   const values = {};
   for (const field of fieldsRoot.querySelectorAll("textarea")) {
@@ -89,10 +74,7 @@ export function clearInput() {
   }
 }
 
-/**
- * Disable or enable the send button and all composer fields.
- * @param {boolean} isBusy
- */
+/** Disable or enable the send button and all composer fields. */
 export function setBusy(isBusy) {
   sendButton.disabled = isBusy;
   for (const field of fieldsRoot.querySelectorAll("textarea")) {
@@ -106,10 +88,7 @@ export function focusInput() {
   fields[fields.length - 1]?.focus();
 }
 
-/**
- * Bind the form submit handler without a page reload.
- * @param {() => void} handler
- */
+/** Bind the form submit handler without a page reload. */
 export function onSubmit(handler) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -117,10 +96,7 @@ export function onSubmit(handler) {
   });
 }
 
-/**
- * Enable or disable "click the glass panel to choose a layout".
- * @param {boolean} isEnabled
- */
+/** Enable or disable "click the glass panel to choose a layout". */
 export function setPickerMode(isEnabled) {
   pickerMode = isEnabled;
   conversation.classList.toggle("is-picker-mode", isEnabled);
@@ -132,7 +108,6 @@ export function setPickerMode(isEnabled) {
 /**
  * Wire picker interactions: glass click opens choices, a choice applies a layout,
  * clicking the dimmed backdrop closes the picker without changing layout.
- * @param {(layoutId: string) => void} handler
  */
 export function onLayoutPick(handler) {
   stack.addEventListener("click", (event) => {

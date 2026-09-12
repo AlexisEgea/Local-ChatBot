@@ -1,0 +1,72 @@
+/* History panel: new chat, saved list, and right-click menu. */
+
+.history-new-chat,
+.history-item {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--choice-bg);
+  border: 1px solid var(--choice-border);
+}
+
+.history-new-chat {
+  font-weight: 600;
+}
+
+.history-item {
+  margin-bottom: 8px;
+}
+
+.history-item.is-active {
+  border-color: rgba(55, 130, 255, 0.55);
+}
+
+.history-item.is-editing {
+  padding: 6px 8px;
+}
+
+.history-item-input {
+  width: 100%;
+  margin: 0;
+  padding: 4px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.history-menu {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 14px;
+}
+
+.history-menu[hidden] {
+  display: none;
+}
+
+.history-menu button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.history-menu button:hover {
+  background: var(--choice-bg);
+}

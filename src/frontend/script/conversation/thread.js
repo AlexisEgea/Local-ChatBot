@@ -1,7 +1,4 @@
-/**
- * Message thread rendering.
- * Builds user/assistant bubbles and keeps the list scrolled to the latest message.
- */
+/** Builds user/assistant bubbles and keeps the list scrolled to the latest message. */
 
 const thread = document.getElementById("chat-thread");
 
@@ -13,13 +10,7 @@ function hideEmptyState() {
   }
 }
 
-/**
- * Append a chat bubble and return it so callers can update it later.
- * @param {"user" | "assistant"} role
- * @param {string} content
- * @param {string} extraClass
- * @returns {HTMLDivElement}
- */
+/** Append a chat bubble and return it so callers can update it later. */
 export function appendMessage(role, content, extraClass = "") {
   hideEmptyState();
 
@@ -43,4 +34,22 @@ export function markError(bubble) {
 /** Keep the latest message visible. */
 export function scrollToBottom() {
   thread.scrollTop = thread.scrollHeight;
+}
+
+/** Reset the thread to the empty-state prompt. */
+export function clearThread() {
+  thread.innerHTML = '<p class="empty">How can I help you?</p>';
+}
+
+/** Replace the thread with a saved conversation. */
+export function renderThread(messages) {
+  thread.replaceChildren();
+  const visible = messages.filter((message) => message.role === "user" || message.role === "assistant");
+  if (visible.length === 0) {
+    clearThread();
+    return;
+  }
+  for (const message of visible) {
+    appendMessage(message.role, message.content);
+  }
 }
