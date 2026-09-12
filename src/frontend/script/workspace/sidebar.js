@@ -1,6 +1,4 @@
-/**
- * Expandable workspace and left-hand conversation-layout menu.
- */
+/** Expandable workspace and left-hand conversation-layout menu. */
 
 const app = document.getElementById("app");
 const toggle = document.getElementById("app-toggle");
@@ -10,26 +8,19 @@ const outerLeft = document.getElementById("sidebar-outer-left");
 const outerRight = document.getElementById("sidebar-outer-right");
 const defaultLayoutSection = document.getElementById("default-layout-section");
 
-/** @returns {boolean} True when the Local ChatBot workspace is expanded. */
+/** Return whether the Local ChatBot workspace is expanded. */
 export function isExpanded() {
   return app.classList.contains("is-expanded");
 }
 
-/**
- * Expand or collapse the workspace and left menu.
- * @param {boolean} expanded
- */
+/** Expand or collapse the workspace and left menu. */
 export function setExpanded(expanded) {
   app.classList.toggle("is-expanded", expanded);
   toggle.setAttribute("aria-expanded", String(expanded));
   sidebar.hidden = !expanded;
 }
 
-/**
- * Show or hide one of the outer side panels.
- * @param {"left" | "right"} side
- * @param {boolean} open
- */
+/** Show or hide one of the outer side panels. */
 export function setSidePanelOpen(side, open) {
   const panel = side === "left" ? outerLeft : outerRight;
   panel.classList.toggle("is-open", open);
@@ -37,10 +28,7 @@ export function setSidePanelOpen(side, open) {
   panel.setAttribute("aria-expanded", String(open));
 }
 
-/**
- * Bind clicks on the left and right side zones.
- * @param {(side: "left" | "right") => void} handler
- */
+/** Bind clicks on the left and right side zones. */
 export function onSidePanelToggle(handler) {
   const onRailClick = (side) => (event) => {
     if (event.target.closest("label, input, button")) {
@@ -52,23 +40,17 @@ export function onSidePanelToggle(handler) {
   outerRight.addEventListener("click", onRailClick("right"));
 }
 
-/**
- * Bind a click handler on the Local ChatBot title.
- * @param {() => void} handler
- */
+/** Bind a click handler on the Local ChatBot title. */
 export function onToggle(handler) {
   toggle.addEventListener("click", handler);
 }
 
-/** @returns {"default" | "picker"} How the user picks a conversation layout. */
+/** Return how the user picks a conversation layout. */
 export function getChooseMode() {
   return chatMode.querySelector('input[name="choose-mode"]:checked')?.value ?? "default";
 }
 
-/**
- * Set the choose-mode radios and show default-layout options only in default mode.
- * @param {"default" | "picker"} mode
- */
+/** Set the choose-mode radios and show default-layout options only in default mode. */
 export function setChooseMode(mode) {
   const input = chatMode.querySelector(`input[name="choose-mode"][value="${mode}"]`);
   if (input) {
@@ -77,20 +59,14 @@ export function setChooseMode(mode) {
   defaultLayoutSection.hidden = mode !== "default";
 }
 
-/**
- * Highlight the sidebar button that matches the active layout.
- * @param {string} layoutId
- */
+/** Highlight the sidebar button that matches the active layout. */
 export function setActiveLayoutButton(layoutId) {
   for (const button of chatMode.querySelectorAll(".sidebar-layout")) {
     button.classList.toggle("is-active", button.dataset.layout === layoutId);
   }
 }
 
-/**
- * Bind changes on the "How to choose" radios.
- * @param {(mode: string) => void} handler
- */
+/** Bind changes on the "How to choose" radios. */
 export function onChooseModeChange(handler) {
   chatMode.addEventListener("change", (event) => {
     if (event.target.name === "choose-mode") {
@@ -100,10 +76,7 @@ export function onChooseModeChange(handler) {
   });
 }
 
-/**
- * Bind clicks on default-layout buttons (ignored while picker mode is on).
- * @param {(layoutId: string) => void} handler
- */
+/** Bind clicks on default-layout buttons (ignored while picker mode is on). */
 export function onDefaultLayoutClick(handler) {
   chatMode.addEventListener("click", (event) => {
     const button = event.target.closest(".sidebar-layout");
