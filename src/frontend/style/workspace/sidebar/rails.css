@@ -1,0 +1,27 @@
+/* History and Chat Mode side rails at the edges of the workspace. */
+
+.side-rail {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 22px;
+  cursor: pointer;
+}
+
+.side-rail.is-open {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.side-rail:not(.is-open) {
+  border: 0;
+  background: transparent;
+}
+
+.side-rail:not(.is-open) .side-rail-content {
+  display: none;
+}
