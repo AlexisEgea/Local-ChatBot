@@ -2,6 +2,10 @@
 @import url("./theme/base.css");
 @import url("./theme/glass.css");
 @import url("./workspace/layout.css");
-@import url("./workspace/sidebar.css");
+@import url("./workspace/sidebar/model.css");
+@import url("./workspace/sidebar/rails.css");
+@import url("./workspace/sidebar/history.css");
+@import url("./workspace/sidebar/chat-mode.css");
+@import url("./workspace/sidebar/theme.css");
 @import url("./conversation/messages.css");
 @import url("./conversation/composer.css");
