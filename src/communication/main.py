@@ -44,7 +44,7 @@ def run_server() -> None:
 
     print(f"Communication server starting on http://{host}:{port}")
 
-    from communication.api import app
+    from communication.api.app import app
 
     uvicorn.run(app, host=host, port=port)
 
