@@ -14,6 +14,7 @@ if str(BACKEND_DIR) not in sys.path:
 
 from communication.api.chat import router as chat_router
 from communication.api.history import router as history_router
+from communication.api.models import router as models_router
 from communication.api.websocket import lifespan, router as websocket_router
 
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(history_router)
+app.include_router(models_router)
 app.include_router(websocket_router)
 
 
