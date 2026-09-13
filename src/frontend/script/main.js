@@ -18,6 +18,7 @@ import {
 } from "./conversation/composer.js";
 import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT } from "./conversation/layouts.js";
 import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
+import { getModelConfig, initModelOptions } from "./workspace/sidebar/model-options.js";
 import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
@@ -102,7 +103,8 @@ async function handleSubmit() {
   setBusy(true);
 
   try {
-    const reply = await sendChat(messages);
+    const { model, settings } = getModelConfig();
+    const reply = await sendChat(messages, model, settings);
     pending.textContent = reply;
     messages.push({ role: "assistant", content: reply });
     await persistHistory();
@@ -244,4 +246,5 @@ onHistoryMenuAction(handleHistoryMenu);
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
 initTheme();
+initModelOptions();
 refreshHistoryList();
