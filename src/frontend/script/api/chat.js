@@ -6,11 +6,11 @@
 const API_BASE_URL = window.location.origin;
 
 /** Send the full conversation and return the assistant reply. */
-export async function sendChat(messages) {
+export async function sendChat(messages, model, settings) {
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, model, settings }),
   });
 
   const data = await response.json();

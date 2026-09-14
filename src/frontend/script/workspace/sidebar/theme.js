@@ -105,8 +105,10 @@ function applyTheme() {
 
   if (mode === "custom") {
     applyCustomColors(background, glass);
+    root.style.colorScheme = luminance(background) > 0.55 ? "light" : "dark";
   } else {
     clearCustomVars();
+    root.style.removeProperty("color-scheme");
   }
 
   writeStore({ mode, background, glass });

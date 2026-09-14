@@ -1,6 +1,6 @@
 """Short conversation titles via a small extra LLM call."""
 
-from model.llm_client import complete_chat
+from model.chat_completion_response import complete_chat
 
 SNIPPET_LENGTH = 300
 
@@ -58,5 +58,6 @@ def generate_title(messages: list[dict[str, str]]) -> str:
             {"role": "user", "content": "\n".join(snippets)},
         ],
         max_tokens=256,
+        model="openai/gpt-oss-20b",
     )
     return _clean_title(raw)

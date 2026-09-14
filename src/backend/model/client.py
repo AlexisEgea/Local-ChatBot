@@ -1,4 +1,4 @@
-"""Hugging Face Inference client used by the CLI and the chat API."""
+"""OpenAI-compatible client pointed at Hugging Face Inference."""
 
 import os
 from pathlib import Path
@@ -39,18 +39,3 @@ def create_client() -> OpenAI:
         api_key=api_key,
         base_url="https://router.huggingface.co/v1",
     )
-
-
-def complete_chat(messages: list[dict[str, str]], max_tokens: int = 256) -> str:
-    """Send chat messages to gpt-oss-20b and return the assistant text."""
-    output = create_client().chat.completions.create(
-        model="openai/gpt-oss-20b",
-        messages=messages,
-        max_tokens=max_tokens,
-    )
-    message = output.choices[0].message
-    content = (message.content or "").strip()
-    if content:
-        return content
-    reasoning = getattr(message, "reasoning", None) or getattr(message, "reasoning_content", None)
-    return (reasoning or "").strip()
