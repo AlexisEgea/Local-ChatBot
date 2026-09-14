@@ -58,5 +58,6 @@ def generate_title(messages: list[dict[str, str]]) -> str:
             {"role": "user", "content": "\n".join(snippets)},
         ],
         max_tokens=256,
+        model="openai/gpt-oss-20b",
     )
     return _clean_title(raw)
