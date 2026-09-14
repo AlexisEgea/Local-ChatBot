@@ -11,6 +11,9 @@ OPENAI_CREATE_KEYS = {
     "presence_penalty",
     "seed",
 }
+EXTRA_BODY_KEYS = {
+    "reasoning_effort",
+}
 REQUEST_KEY_ALIASES = {
     "max_new_tokens": "max_tokens",
     "max_length": "max_tokens",
@@ -32,7 +35,7 @@ def complete_chat(
     if mapped.get("reasoning_effort") in {None, "none"}:
         mapped.pop("reasoning_effort", None)
     create_kwargs = {key: mapped[key] for key in OPENAI_CREATE_KEYS if key in mapped}
-    extra_body = {key: value for key, value in mapped.items() if key not in OPENAI_CREATE_KEYS}
+    extra_body = {key: mapped[key] for key in EXTRA_BODY_KEYS if key in mapped}
     if extra_body:
         create_kwargs["extra_body"] = extra_body
 
