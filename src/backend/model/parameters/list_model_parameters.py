@@ -12,18 +12,13 @@ from model.parameters.inference_model_parameters import (
     reasoning_parameter,
     supports_reasoning,
 )
-from model.parameters.repository_model_parameters import (
-    HUB_KEY_ALIASES,
-    apply_hub_defaults,
-    clamp_value,
-    widget_from_repo_value,
-)
+from model.parameters.repository_model_parameters import apply_hub_defaults, clamp_value
 
 _cached_parameters: dict[str, tuple[float, list[dict]]] = {}
 
 
 def list_model_parameters(model_id: str) -> list[dict]:
-    """Return inference knobs, repository defaults, and extra repo fields for this model."""
+    """Return inference knobs with repository defaults, plus reasoning when supported."""
     chosen = model_id.strip()
     if not chosen:
         raise ValueError("No model selected")
@@ -38,17 +33,6 @@ def list_model_parameters(model_id: str) -> list[dict]:
     config = repo_json(hub_repo, "generation_config.json") or {}
     parameters = huggingface_chat_parameters(context_length)
     apply_hub_defaults(parameters, config)
-
-    seen = {parameter["id"] for parameter in parameters}
-    for key, value in config.items():
-        mapped = HUB_KEY_ALIASES.get(key, key)
-        if mapped in seen:
-            continue
-        extra = widget_from_repo_value(key, value, context_length)
-        if extra is None:
-            continue
-        seen.add(extra["id"])
-        parameters.append(extra)
 
     if supports_reasoning(chosen, repo_tags(hub_repo)):
         parameters.append(reasoning_parameter())
