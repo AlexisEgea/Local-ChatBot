@@ -51,7 +51,7 @@ function choiceTrigger(select) {
 }
 
 /** Copy the selected option label onto the glass trigger. */
-function syncChoiceLabel(select) {
+export function syncChoiceLabel(select) {
   const trigger = choiceTrigger(select);
   if (trigger) {
     trigger.textContent = select.selectedOptions[0]?.textContent ?? "";
@@ -110,7 +110,7 @@ function showModelMenu(select, trigger) {
 }
 
 /** Replace a native select popup with a glass trigger and shared menu. */
-function enhanceSelect(select) {
+export function enhanceSelect(select) {
   if (select.closest(".model-choice")) {
     return;
   }
@@ -118,7 +118,7 @@ function enhanceSelect(select) {
   wrap.className = "model-choice";
   const trigger = document.createElement("button");
   trigger.type = "button";
-  trigger.className = "model-select";
+  trigger.className = "model-select glass";
   trigger.setAttribute("aria-haspopup", "listbox");
   trigger.setAttribute("aria-expanded", "false");
   select.parentNode.insertBefore(wrap, select);
@@ -234,7 +234,7 @@ function renderStepper(parameter, value) {
   heading.textContent = parameter.label;
 
   const stepper = document.createElement("div");
-  stepper.className = "model-stepper";
+  stepper.className = "model-stepper glass";
 
   const input = document.createElement("input");
   input.type = "text";
@@ -328,6 +328,7 @@ function renderBoolean(parameter, value) {
 
   const input = document.createElement("input");
   input.type = "checkbox";
+  input.className = "glass";
   input.name = parameter.id;
   input.checked = Boolean(value);
   input.addEventListener("change", persist);
@@ -481,7 +482,7 @@ modelMenu.addEventListener("click", (event) => {
   event.stopPropagation();
   openChoiceSelect.value = button.dataset.value;
   syncChoiceLabel(openChoiceSelect);
-  openChoiceSelect.dispatchEvent(new Event("change"));
+  openChoiceSelect.dispatchEvent(new Event("change", { bubbles: true }));
   hideModelMenu();
 });
 
