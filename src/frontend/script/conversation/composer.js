@@ -63,7 +63,7 @@ export function fillLayoutFields(root, layoutId, values = {}, options = {}) {
 
     const label = document.createElement("span");
     label.className = "composer-field-label";
-    label.textContent = field.placeholder;
+    label.textContent = field.title ?? field.placeholder;
 
     const textarea = document.createElement("textarea");
     textarea.name = field.name;
