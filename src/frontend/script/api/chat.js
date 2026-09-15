@@ -10,7 +10,11 @@ export async function sendChat(messages, model, settings) {
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, model, settings }),
+    body: JSON.stringify({
+      messages: messages.map(({ role, content }) => ({ role, content })),
+      model,
+      settings,
+    }),
   });
 
   const data = await response.json();
