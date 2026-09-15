@@ -2,24 +2,24 @@ export const LAYOUTS = {
   user: {
     id: "user",
     label: "Default",
-    fields: [{ name: "user", placeholder: "Type a message", rows: 1 }],
+    fields: [{ name: "user", title: "User", placeholder: "Type a message", rows: 1 }],
   },
   "system-user": {
     id: "system-user",
     label: "Role-Based Prompt",
     fields: [
-      { name: "system", placeholder: "System Instruction", rows: 2 },
-      { name: "user", placeholder: "User Message", rows: 1 },
+      { name: "system", title: "System Instruction", placeholder: "System Instruction", rows: 2 },
+      { name: "user", title: "User Message", placeholder: "User Message", rows: 1 },
     ],
   },
   cgse: {
     id: "cgse",
     label: "CGSE",
     fields: [
-      { name: "context", placeholder: "Context", rows: 2 },
-      { name: "goal", placeholder: "Goal", rows: 2 },
-      { name: "source", placeholder: "Source", rows: 2 },
-      { name: "expectation", placeholder: "Expectation", rows: 2 },
+      { name: "context", title: "Context", placeholder: "Context", rows: 2 },
+      { name: "goal", title: "Goal", placeholder: "Goal", rows: 2 },
+      { name: "source", title: "Source", placeholder: "Source", rows: 2 },
+      { name: "expectation", title: "Expectation", placeholder: "Expectation", rows: 2 },
     ],
   },
 };
