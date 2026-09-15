@@ -139,7 +139,7 @@ export function renderHistoryList(items, activeId) {
   for (const item of items) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "history-item";
+    button.className = "history-item glass";
     button.dataset.id = item.id;
     button.textContent = item.title;
     if (item.id === activeId) {
