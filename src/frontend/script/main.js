@@ -16,28 +16,36 @@ import {
   setBusy,
   setPickerMode,
 } from "./conversation/composer.js";
-import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT } from "./conversation/layouts.js";
+import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, exchangeRange, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/layouts.js";
 import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
 import { getModelConfig, initModelOptions } from "./workspace/sidebar/model-options.js";
 import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
-import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode } from "./workspace/sidebar/chat-mode.js";
+import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
 import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
-import { appendMessage, clearThread, markError, renderThread, scrollToBottom } from "./conversation/thread.js";
+import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, scrollToBottom, setEditingPickerMode } from "./conversation/thread.js";
 
 const messages = [];
 let conversationId = null;
 let historySaved = false;
 
-/** Apply a conversation layout and highlight it in the sidebar. */
+/** Apply a conversation layout: the edited bubble while editing, otherwise the composer. */
 function applyLayout(layoutId) {
-  renderFields(layoutId);
   setActiveLayoutButton(layoutId);
+  if (isMessageEditing()) {
+    applyEditingLayout(layoutId);
+    return;
+  }
+  renderFields(layoutId);
 }
 
 /** Switch between a fixed default layout and click-the-panel picking. */
 function applyChooseMode(mode) {
   setChooseMode(mode);
+  if (isMessageEditing()) {
+    setEditingPickerMode();
+    return;
+  }
   setPickerMode(mode === "picker");
 }
 
@@ -91,22 +99,28 @@ async function handleSubmit() {
     return;
   }
 
-  const outgoing = buildOutgoingMessages(layoutId, values);
-  const visible = displayText(layoutId, values);
-
   rememberConversationStart();
+  const outgoing = withLayoutMeta(buildOutgoingMessages(layoutId, values), layoutId, values);
+  const start = messages.length;
   messages.push(...outgoing);
-  appendMessage("user", visible);
+  outgoing.forEach((message, offset) => {
+    if (message.role === "system" || message.role === "user") {
+      const text = message.role === "user" ? displayText(layoutId, values) : message.content;
+      appendMessage(message.role, text, "", start + offset, message);
+    }
+  });
   clearInput();
 
-  const pending = appendMessage("assistant", "…");
+  const pending = appendMessage("assistant", "…", "message--pending");
   setBusy(true);
 
   try {
     const { model, settings } = getModelConfig();
     const reply = await sendChat(messages, model, settings);
     pending.textContent = reply;
+    pending.parentElement.classList.remove("message--pending");
     messages.push({ role: "assistant", content: reply });
+    pending.parentElement.dataset.index = String(messages.length - 1);
     await persistHistory();
   } catch (error) {
     pending.textContent = error instanceof Error ? error.message : String(error);
@@ -138,8 +152,8 @@ function exchangeCount() {
   return messages.filter((message) => message.role === "assistant").length;
 }
 
-/** Save after the first exchange; replace the title after the second. */
-async function persistHistory() {
+/** Save after the first exchange; replace the title after the second, or when asked. */
+async function persistHistory(refineTitle = null) {
   const exchanges = exchangeCount();
   if (exchanges < 1) {
     return;
@@ -153,7 +167,7 @@ async function persistHistory() {
       await refreshHistoryList();
       return;
     }
-    await updateHistory(conversationId, messages, exchanges === 2);
+    await updateHistory(conversationId, messages, refineTitle ?? exchanges === 2);
     await refreshHistoryList();
   } catch (error) {
     console.error("Could not save conversation", error);
@@ -230,6 +244,86 @@ async function handleHistoryMenu(action, id, currentTitle) {
   }
 }
 
+/** Copy or edit a message from the glass action menu. */
+async function handleMessageMenu(action, index) {
+  const message = messages[index];
+  if (!message) {
+    return;
+  }
+  if (action === "copy") {
+    try {
+      await navigator.clipboard.writeText(message.content);
+    } catch (error) {
+      console.error("Could not copy message", error);
+    }
+    return;
+  }
+  if (action === "delete") {
+    const { start, end } = exchangeRange(messages, index);
+    messages.splice(start, end - start + 1);
+    if (messages.length === 0) {
+      if (historySaved && conversationId) {
+        try {
+          await deleteHistory(conversationId);
+        } catch (error) {
+          console.error("Could not delete conversation", error);
+        }
+      }
+      startNewChat();
+      return;
+    }
+    renderThread(messages);
+    if (historySaved) {
+      try {
+        await updateHistory(conversationId, messages, false);
+        await refreshHistoryList();
+      } catch (error) {
+        console.error("Could not save conversation", error);
+      }
+    }
+    return;
+  }
+  if (action === "edit" && (message.role === "user" || message.role === "system")) {
+    const start = turnStartIndex(messages, index);
+    const pairIndex = start === index ? (messages[index + 1]?.role === "user" ? index + 1 : null) : start;
+    const layoutId = inferLayout(message, index, messages);
+    const values = inferValues(message, index, messages);
+    beginMessageEdit(index, {
+      layoutId,
+      values,
+      pairIndex,
+      canSend,
+      message,
+      pickerMode: () => getChooseMode() === "picker",
+      onCommit: async (nextLayout, nextValues) => {
+        const userIndex = messages[start]?.role === "system" ? start + 1 : start;
+        const userNumber = messages.slice(0, userIndex + 1).filter((entry) => entry.role === "user").length;
+        const outgoing = withLayoutMeta(buildOutgoingMessages(nextLayout, nextValues), nextLayout, nextValues);
+        messages.splice(start);
+        messages.push(...outgoing);
+        renderThread(messages);
+        const pending = appendMessage("assistant", "…", "message--pending");
+        setBusy(true);
+        try {
+          const { model, settings } = getModelConfig();
+          const reply = await sendChat(messages, model, settings);
+          pending.textContent = reply;
+          pending.parentElement.classList.remove("message--pending");
+          messages.push({ role: "assistant", content: reply });
+          pending.parentElement.dataset.index = String(messages.length - 1);
+          await persistHistory(userNumber <= 2);
+        } catch (error) {
+          pending.textContent = error instanceof Error ? error.message : String(error);
+          markError(pending);
+        } finally {
+          setBusy(false);
+          scrollToBottom();
+        }
+      },
+    });
+  }
+}
+
 onToggle(() => setExpanded(!document.getElementById("app").classList.contains("is-expanded")));
 onSidePanelToggle((side) => {
   const panel = document.getElementById(side === "left" ? "sidebar-outer-left" : "sidebar-outer-right");
@@ -242,6 +336,7 @@ onSubmit(handleSubmit);
 onNewChat(startNewChat);
 onHistorySelect(openHistoryItem);
 onHistoryMenuAction(handleHistoryMenu);
+onMessageMenuAction(handleMessageMenu);
 
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
