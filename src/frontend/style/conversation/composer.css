@@ -53,15 +53,41 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 
+.composer-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: none;
+  gap: 2px;
+  min-width: 0;
+}
+
+.composer-field-label {
+  display: none;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--page-muted);
+}
+
+.composer-field.is-filled .composer-field-label {
+  display: block;
+}
+
 .composer textarea {
+  flex: none;
   width: 100%;
   resize: none;
   min-height: 28px;
-  max-height: 160px;
+  max-height: none;
+  overflow: hidden;
+  field-sizing: content;
   padding: 8px 4px;
   border: 0;
   border-radius: 12px;
@@ -69,6 +95,9 @@
   color: inherit;
   font: inherit;
   outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .composer textarea::placeholder {
