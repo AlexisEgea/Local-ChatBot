@@ -45,7 +45,8 @@
 }
 
 .history-menu,
-.model-menu {
+.model-menu,
+.message-menu {
   position: fixed;
   z-index: 20;
   display: flex;
@@ -61,12 +62,14 @@
 }
 
 .history-menu[hidden],
-.model-menu[hidden] {
+.model-menu[hidden],
+.message-menu[hidden] {
   display: none;
 }
 
 .history-menu button,
-.model-menu button {
+.model-menu button,
+.message-menu button {
   padding: 6px 10px;
   border: 0;
   border-radius: 10px;
@@ -81,6 +84,7 @@
 
 .history-menu button:hover,
 .model-menu button:hover,
-.model-menu button.is-active {
+.model-menu button.is-active,
+.message-menu button:hover {
   background: var(--choice-bg);
 }
