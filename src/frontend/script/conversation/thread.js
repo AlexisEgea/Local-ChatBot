@@ -78,7 +78,7 @@ function paintReadFields(bubble, fields, values) {
     block.className = "bubble-field";
     const label = document.createElement("span");
     label.className = "bubble-field-label";
-    label.textContent = field.placeholder;
+    label.textContent = field.title ?? field.placeholder;
     const text = document.createElement("div");
     text.className = "bubble-field-text";
     text.textContent = value;
@@ -87,11 +87,33 @@ function paintReadFields(bubble, fields, values) {
   }
 }
 
+/** Append one message row and paint its bubble. */
+function appendRow(role, extraClass, index, painter) {
+  hideEmptyState();
+  const row = document.createElement("div");
+  row.className = `message message--${role}${extraClass ? ` ${extraClass}` : ""}`;
+  row.dataset.role = role;
+  if (index !== null) {
+    row.dataset.index = String(index);
+  }
+  const bubble = document.createElement("div");
+  bubble.className = "bubble glass";
+  painter(bubble);
+  row.appendChild(bubble);
+  thread.appendChild(row);
+  scrollToBottom();
+  return bubble;
+}
+
 /** Fill a bubble from a stored message: structured fields, or plain text. */
-function fillBubble(bubble, role, content, message = null) {
+export function fillBubble(bubble, role, content, message = null) {
   bubble.replaceChildren();
   bubble.classList.remove("bubble--fields");
-  if (role === "assistant" || !message) {
+  if (role === "assistant") {
+    paintReadFields(bubble, [{ name: "assistant", title: "System" }], { assistant: content });
+    return;
+  }
+  if (!message) {
     bubble.textContent = content;
     return;
   }
@@ -102,34 +124,40 @@ function fillBubble(bubble, role, content, message = null) {
     paintReadFields(bubble, LAYOUTS.cgse.fields, values);
     return;
   }
-  if (layoutId === "system-user") {
-    const field = role === "system" ? LAYOUTS["system-user"].fields[0] : LAYOUTS["system-user"].fields[1];
-    const value =
-      role === "system" ? message.values?.system ?? content : message.values?.user ?? content;
-    paintReadFields(bubble, [field], { [field.name]: value });
+  if (layoutId === "system-user" || role === "system") {
+    if (role === "system") {
+      const value = message.values?.system ?? content;
+      paintReadFields(bubble, [LAYOUTS["system-user"].fields[0]], { system: value });
+      return;
+    }
+    const value = message.values?.user ?? content;
+    paintReadFields(bubble, [LAYOUTS["system-user"].fields[1]], { user: value });
     return;
   }
-  bubble.textContent = content;
+  paintReadFields(bubble, LAYOUTS.user.fields, { user: message.values?.user ?? content });
 }
 
-/** Append a chat bubble and return it so callers can update it later. */
+/** Append chat bubbles: one per field, or a single assistant / Default bubble. */
 export function appendMessage(role, content, extraClass = "", index = null, message = null) {
-  hideEmptyState();
-
-  const row = document.createElement("div");
-  row.className = `message message--${role}${extraClass ? ` ${extraClass}` : ""}`;
-  row.dataset.role = role;
-  if (index !== null) {
-    row.dataset.index = String(index);
+  if (role === "user" && message) {
+    const layoutId = message.layout || inferLayout(message, 0, [message]);
+    if (layoutId === "cgse") {
+      const values = message.values && typeof message.values === "object" ? message.values : parseCgse(content);
+      let last = null;
+      for (const field of LAYOUTS.cgse.fields) {
+        if (!values[field.name]) {
+          continue;
+        }
+        last = appendRow("user", extraClass, index, (bubble) => {
+          paintReadFields(bubble, [field], { [field.name]: values[field.name] });
+        });
+      }
+      if (last) {
+        return last;
+      }
+    }
   }
-
-  const bubble = document.createElement("div");
-  bubble.className = "bubble glass";
-  fillBubble(bubble, role, content, message);
-  row.appendChild(bubble);
-  thread.appendChild(row);
-  scrollToBottom();
-  return bubble;
+  return appendRow(role, extraClass, index, (bubble) => fillBubble(bubble, role, content, message));
 }
 
 /** Style a bubble as a failed request. */
@@ -195,7 +223,7 @@ function showPairedRow(pairIndex) {
 
 /** Replace a user/system bubble with the full composer (fields, send, picker). */
 export function beginMessageEdit(index, options) {
-  const { layoutId, values, pairIndex = null, canSend, pickerMode, onCommit, message } = options;
+  const { layoutId, values, pairIndex = null, canSend, pickerMode, onCommit, onCancel, message } = options;
   const row = thread.querySelector(`.message[data-index="${CSS.escape(String(index))}"]`);
   const bubble = row?.querySelector(".bubble");
   if (!bubble) {
@@ -207,6 +235,11 @@ export function beginMessageEdit(index, options) {
 
   const original = message ?? { role: row.dataset.role, content: bubble.textContent };
   row.classList.add("is-editing");
+  for (const other of thread.querySelectorAll(`.message[data-index="${CSS.escape(String(index))}"]`)) {
+    if (other !== row) {
+      other.classList.add("message--pair-hidden");
+    }
+  }
   if (pairIndex !== null && pairIndex !== undefined) {
     const pair = thread.querySelector(`.message[data-index="${CSS.escape(String(pairIndex))}"]`);
     pair?.classList.add("message--pair-hidden");
@@ -261,6 +294,10 @@ export function beginMessageEdit(index, options) {
     }
     finished = true;
     activeEdit = null;
+    if (onCancel) {
+      onCancel();
+      return;
+    }
     row.classList.remove("is-editing", "is-picking", "is-picker-mode");
     showPairedRow(pairIndex);
     fillBubble(bubble, original.role, original.content, original);
