@@ -202,7 +202,7 @@ function createBubblePicker() {
   for (const layout of Object.values(LAYOUTS)) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "composer-choice";
+    button.className = "composer-choice glass";
     button.dataset.layout = layout.id;
     const hint = document.createElement("span");
     hint.textContent = layout.fields.map((field) => field.placeholder).join(", ");
@@ -253,7 +253,7 @@ export function beginMessageEdit(index, options) {
   fieldsRoot.className = "composer-fields";
   const send = document.createElement("button");
   send.type = "button";
-  send.className = "message-send";
+  send.className = "message-send glass";
   send.setAttribute("aria-label", "Send");
   send.innerHTML = SEND_ICON;
   editRow.append(fieldsRoot, send);

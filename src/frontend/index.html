@@ -13,9 +13,12 @@
       <!-- Extra left panel, same width as Chat Mode, shown when expanded. -->
       <aside class="side-rail" id="sidebar-outer-left" aria-expanded="false" aria-label="History">
         <div class="side-rail-content" id="history-panel">
-          <button type="button" class="history-new-chat" id="history-new-chat">
-            New chat
-          </button>
+          <section class="sidebar-section">
+            <h2>Conversation</h2>
+            <button type="button" class="history-new-chat glass" id="history-new-chat">
+              New chat
+            </button>
+          </section>
           <section class="sidebar-section">
             <h2>History</h2>
             <div id="history-list" class="history-list"></div>
@@ -62,22 +65,22 @@
           <form id="chat-form" class="composer">
             <div class="composer-stack glass" id="composer-stack">
               <div class="composer-picker" id="composer-picker" hidden>
-                <button type="button" class="composer-choice" data-layout="user">
+                <button type="button" class="composer-choice glass" data-layout="user">
                   Default
                   <span>User Message</span>
                 </button>
-                <button type="button" class="composer-choice" data-layout="system-user">
+                <button type="button" class="composer-choice glass" data-layout="system-user">
                   Role-Based Prompt
                   <span>System and User Prompts</span>
                 </button>
-                <button type="button" class="composer-choice" data-layout="cgse">
+                <button type="button" class="composer-choice glass" data-layout="cgse">
                   CGSE 
                   <span>Context, Goal, Source, Expectation</span>
                 </button>
               </div>
               <div class="composer-row" id="composer-row">
                 <div id="composer-fields" class="composer-fields"></div>
-                <button type="submit" id="chat-send" aria-label="Send">
+                <button type="submit" id="chat-send" class="glass" aria-label="Send">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
@@ -94,27 +97,25 @@
         <div class="side-rail-content" id="chat-mode">
           <section class="sidebar-section">
             <h2>Chat Mode</h2>
-            <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="picker" checked />
-              Chat Bar
-            </label>
-            <label class="sidebar-option">
-              <input type="radio" name="choose-mode" value="default" />
-              Default 
+            <label class="model-field">
+              <select id="choose-mode" class="model-select" name="choose-mode">
+                <option value="picker" selected>Chat Bar</option>
+                <option value="default">Default</option>
+              </select>
             </label>
           </section>
 
           <section class="sidebar-section" id="default-layout-section" hidden>
             <h2>chat</h2>
-            <button type="button" class="sidebar-layout is-active" data-layout="user">
+            <button type="button" class="sidebar-layout glass is-active" data-layout="user">
               Default
               <span>User message</span>
             </button>
-            <button type="button" class="sidebar-layout" data-layout="system-user">
+            <button type="button" class="sidebar-layout glass" data-layout="system-user">
               Role-Based Prompt
               <span>System and User Prompts</span>
             </button>
-            <button type="button" class="sidebar-layout" data-layout="cgse">
+            <button type="button" class="sidebar-layout glass" data-layout="cgse">
               CGSE 
               <span>Context, Goal, Source, Expectation</span>
             </button>
@@ -122,17 +123,12 @@
 
           <section class="sidebar-section">
             <h2>Theme</h2>
-            <label class="sidebar-option">
-              <input type="radio" name="theme-mode" value="light" checked />
-              Light
-            </label>
-            <label class="sidebar-option">
-              <input type="radio" name="theme-mode" value="dark" />
-              Dark
-            </label>
-            <label class="sidebar-option">
-              <input type="radio" name="theme-mode" value="custom" />
-              Custom
+            <label class="model-field">
+              <select id="theme-mode" class="model-select" name="theme-mode">
+                <option value="light" selected>Light</option>
+                <option value="dark">Dark</option>
+                <option value="custom">Custom</option>
+              </select>
             </label>
             <div id="theme-custom-section" hidden>
               <label class="theme-color">

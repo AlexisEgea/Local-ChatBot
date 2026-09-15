@@ -5,14 +5,12 @@
   width: 100%;
   margin: 0 0 16px;
   padding: 10px 12px;
-  border-radius: 14px;
+  border-radius: 18px;
   color: inherit;
   font: inherit;
   font-size: 12px;
   text-align: left;
   cursor: pointer;
-  background: var(--choice-bg);
-  border: 1px solid var(--choice-border);
 }
 
 .history-new-chat {
