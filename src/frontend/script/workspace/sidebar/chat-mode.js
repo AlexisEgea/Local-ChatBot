@@ -1,19 +1,22 @@
 /** Chat Mode panel: how to pick a layout and the default-layout buttons. */
 
+import { enhanceSelect, syncChoiceLabel } from "./model-options.js";
+
 const chatMode = document.getElementById("chat-mode");
+const chooseModeSelect = document.getElementById("choose-mode");
 const defaultLayoutSection = document.getElementById("default-layout-section");
+
+enhanceSelect(chooseModeSelect);
 
 /** Return how the user picks a conversation layout. */
 export function getChooseMode() {
-  return chatMode.querySelector('input[name="choose-mode"]:checked')?.value ?? "default";
+  return chooseModeSelect.value || "default";
 }
 
-/** Set the choose-mode radios and show default-layout options only in default mode. */
+/** Set the choose-mode select and show default-layout options only in default mode. */
 export function setChooseMode(mode) {
-  const input = chatMode.querySelector(`input[name="choose-mode"][value="${mode}"]`);
-  if (input) {
-    input.checked = true;
-  }
+  chooseModeSelect.value = mode;
+  syncChoiceLabel(chooseModeSelect);
   defaultLayoutSection.hidden = mode !== "default";
 }
 
@@ -24,13 +27,11 @@ export function setActiveLayoutButton(layoutId) {
   }
 }
 
-/** Bind changes on the "How to choose" radios. */
+/** Bind changes on the Chat Mode dropdown. */
 export function onChooseModeChange(handler) {
-  chatMode.addEventListener("change", (event) => {
-    if (event.target.name === "choose-mode") {
-      defaultLayoutSection.hidden = event.target.value !== "default";
-      handler(event.target.value);
-    }
+  chooseModeSelect.addEventListener("change", (event) => {
+    defaultLayoutSection.hidden = event.target.value !== "default";
+    handler(event.target.value);
   });
 }
 
