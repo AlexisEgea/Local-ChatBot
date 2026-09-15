@@ -1,5 +1,7 @@
 /** Light, dark, and custom page/glass colors from the Chat Mode panel. */
 
+import { enhanceSelect, syncChoiceLabel } from "./model-options.js";
+
 const STORAGE_KEY = "local-chatbot-theme";
 const CUSTOM_VARS = [
   "--page-bg",
@@ -22,9 +24,12 @@ const CUSTOM_VARS = [
 ];
 
 const root = document.documentElement;
+const themeSelect = document.getElementById("theme-mode");
 const customSection = document.getElementById("theme-custom-section");
 const bgInput = document.getElementById("theme-bg-color");
 const glassInput = document.getElementById("theme-glass-color");
+
+enhanceSelect(themeSelect);
 
 /** Parse a hex color into RGB channels. */
 function hexToRgb(hex) {
@@ -67,9 +72,9 @@ function writeStore(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-/** Return the selected appearance radio. */
+/** Return the selected appearance. */
 function selectedMode() {
-  return document.querySelector('input[name="theme-mode"]:checked')?.value ?? "light";
+  return themeSelect.value || "light";
 }
 
 /** Apply custom background and glass colors as CSS variables. */
@@ -118,10 +123,8 @@ function applyTheme() {
 export function initTheme() {
   const saved = readStore();
   const mode = saved.mode === "dark" || saved.mode === "custom" ? saved.mode : "light";
-  const input = document.querySelector(`input[name="theme-mode"][value="${mode}"]`);
-  if (input) {
-    input.checked = true;
-  }
+  themeSelect.value = mode;
+  syncChoiceLabel(themeSelect);
   if (saved.background) {
     bgInput.value = saved.background;
   }
@@ -129,8 +132,9 @@ export function initTheme() {
     glassInput.value = saved.glass;
   }
 
+  themeSelect.addEventListener("change", applyTheme);
   document.getElementById("chat-mode").addEventListener("change", (event) => {
-    if (event.target.name === "theme-mode" || event.target.id === "theme-bg-color" || event.target.id === "theme-glass-color") {
+    if (event.target.id === "theme-bg-color" || event.target.id === "theme-glass-color") {
       applyTheme();
     }
   });
