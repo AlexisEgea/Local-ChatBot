@@ -30,6 +30,8 @@ class HistoryMessage(BaseModel):
 
     role: str = Field(..., min_length=1)
     content: str = Field(..., min_length=1)
+    layout: str | None = None
+    values: dict[str, str] | None = None
 
 
 class HistoryRequest(BaseModel):
@@ -81,7 +83,7 @@ async def generated_title(messages: list[dict[str, str]]) -> str:
 @router.post("/api/history", response_model=HistoryResponse)
 async def create_history(payload: HistoryRequest) -> HistoryResponse:
     """Create a history file and wait for a title from the first exchange."""
-    messages = [message.model_dump() for message in payload.messages]
+    messages = [message.model_dump(exclude_none=True) for message in payload.messages]
     try:
         saved = create_conversation(messages, payload.id)
     except ValueError as error:
@@ -119,7 +121,7 @@ async def get_history_item(conversation_id: str) -> HistoryDetail:
 @router.put("/api/history/{conversation_id}", response_model=HistoryResponse)
 async def replace_history(conversation_id: str, payload: HistoryRequest) -> HistoryResponse:
     """Overwrite messages; optionally generate a replacement title in the background."""
-    messages = [message.model_dump() for message in payload.messages]
+    messages = [message.model_dump(exclude_none=True) for message in payload.messages]
     try:
         saved = update_conversation(conversation_id, messages)
     except ValueError as error:
