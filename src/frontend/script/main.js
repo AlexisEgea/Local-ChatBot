@@ -18,7 +18,7 @@ import {
 } from "./conversation/composer.js";
 import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, exchangeRange, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/layouts.js";
 import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
-import { getModelConfig, initModelOptions } from "./workspace/sidebar/model-options.js";
+import { getModelConfig, getReplySource, initModelOptions } from "./workspace/sidebar/model-options.js";
 import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
@@ -111,15 +111,16 @@ async function handleSubmit() {
   });
   clearInput();
 
-  const pending = appendMessage("assistant", "…", "message--pending");
+  const source = getReplySource();
+  const pending = appendMessage("assistant", "…", "message--pending", null, { role: "assistant", source });
   setBusy(true);
 
   try {
     const { model, settings } = getModelConfig();
     const reply = await sendChat(messages, model, settings);
-    fillBubble(pending, "assistant", reply);
+    fillBubble(pending, "assistant", reply, { role: "assistant", source });
     pending.parentElement.classList.remove("message--pending");
-    messages.push({ role: "assistant", content: reply });
+    messages.push({ role: "assistant", content: reply, source });
     pending.parentElement.dataset.index = String(messages.length - 1);
     await persistHistory();
   } catch (error) {
@@ -303,14 +304,15 @@ async function handleMessageMenu(action, index) {
         messages.splice(start);
         messages.push(...outgoing);
         renderThread(messages);
-        const pending = appendMessage("assistant", "…", "message--pending");
+        const source = getReplySource();
+        const pending = appendMessage("assistant", "…", "message--pending", null, { role: "assistant", source });
         setBusy(true);
         try {
           const { model, settings } = getModelConfig();
           const reply = await sendChat(messages, model, settings);
-          fillBubble(pending, "assistant", reply);
+          fillBubble(pending, "assistant", reply, { role: "assistant", source });
           pending.parentElement.classList.remove("message--pending");
-          messages.push({ role: "assistant", content: reply });
+          messages.push({ role: "assistant", content: reply, source });
           pending.parentElement.dataset.index = String(messages.length - 1);
           await persistHistory(userNumber <= 2);
         } catch (error) {
