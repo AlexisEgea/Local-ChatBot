@@ -404,6 +404,21 @@ export function getModelConfig() {
   return { model: modelId, settings: readInputs() };
 }
 
+/** Return `company/model` for the selected reply source, for transparent labels. */
+export function getReplySource() {
+  const modelId = modelSelect.value;
+  if (!modelId) {
+    return "System";
+  }
+  const found = findModel(modelId);
+  const company = found.company?.label || found.company?.id || "";
+  const model = found.model?.label || modelId;
+  if (company && model) {
+    return `${company}/${model}`;
+  }
+  return model || "System";
+}
+
 /** Show companies for the current provider, then models for the current company. */
 function syncCompanyAndModel(preferredModelId) {
   const provider = options.providers.find((entry) => entry.id === providerSelect.value) ?? options.providers[0];
