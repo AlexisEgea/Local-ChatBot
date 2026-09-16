@@ -32,6 +32,7 @@ class HistoryMessage(BaseModel):
     content: str = Field(..., min_length=1)
     layout: str | None = None
     values: dict[str, str] | None = None
+    source: str | None = None
 
 
 class HistoryRequest(BaseModel):
