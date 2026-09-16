@@ -404,6 +404,37 @@ export function getModelConfig() {
   return { model: modelId, settings: readInputs() };
 }
 
+/** Format a parameter value the same way the Model sidebar shows it. */
+function snapshotValue(parameter, value) {
+  if (parameter.type === "boolean") {
+    return value ? "On" : "Off";
+  }
+  if (parameter.type === "select") {
+    return parameter.options?.find((entry) => entry.id === value)?.label ?? String(value ?? "");
+  }
+  if (parameter.type === "integer" || parameter.type === "number") {
+    return formatNumber(parameter, value);
+  }
+  return String(value ?? "");
+}
+
+/** Snapshot of the Model sidebar used on assistant replies and the info popup. */
+export function getModelSnapshot() {
+  const modelId = modelSelect.value;
+  const found = modelId ? findModel(modelId) : {};
+  const settings = modelId ? readInputs() : {};
+  return {
+    provider: found.provider?.label || found.provider?.id || "",
+    company: found.company?.label || found.company?.id || "",
+    model: found.model?.label || modelId || "",
+    parameters: currentParameters.map((parameter) => ({
+      id: parameter.id,
+      label: parameter.label,
+      value: snapshotValue(parameter, settings[parameter.id]),
+    })),
+  };
+}
+
 /** Return `company/model` for the selected reply source, for transparent labels. */
 export function getReplySource() {
   const modelId = modelSelect.value;
