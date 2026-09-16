@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from utils.directory import ensure_dir
+
 ROOT = Path(__file__).resolve().parents[3]
 HISTORY_DIR = ROOT / "data" / "history"
 SAFE_ID = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}(?:-[0-9]+)?$")
@@ -15,15 +17,9 @@ FALLBACK_TITLE = "New chat"
 TITLE_MAX_LENGTH = 60
 
 
-def ensure_history_dir() -> Path:
-    """Create data/history if needed and return it."""
-    HISTORY_DIR.mkdir(parents=True, exist_ok=True)
-    return HISTORY_DIR
-
-
 def new_conversation_id() -> str:
     """Build a unique id from the local start time."""
-    ensure_history_dir()
+    ensure_dir(HISTORY_DIR)
     stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     candidate = stamp
     suffix = 1
@@ -37,7 +33,7 @@ def conversation_path(conversation_id: str) -> Path:
     """Resolve a conversation id to its JSON path."""
     if not SAFE_ID.match(conversation_id):
         raise ValueError("Invalid conversation id")
-    return ensure_history_dir() / f"{conversation_id}.json"
+    return ensure_dir(HISTORY_DIR) / f"{conversation_id}.json"
 
 
 def now_iso() -> str:
@@ -78,7 +74,7 @@ def create_conversation(messages: list[dict[str, str]], conversation_id: str | N
 def list_conversations() -> list[dict[str, str]]:
     """Return saved chats newest-first, without message bodies."""
     items: list[dict[str, str]] = []
-    for path in ensure_history_dir().glob("*.json"):
+    for path in ensure_dir(HISTORY_DIR).glob("*.json"):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
