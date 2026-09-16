@@ -2,6 +2,7 @@
 
 import { convertLayoutValues, inferLayout, LAYOUTS, parseCgse } from "./layouts.js";
 import { fillLayoutFields, readLayoutValues, resizeFields } from "./composer.js";
+import { getReplySource } from "../workspace/sidebar/model-options.js";
 
 const thread = document.getElementById("chat-thread");
 const messageMenu = document.getElementById("message-menu");
@@ -110,7 +111,8 @@ export function fillBubble(bubble, role, content, message = null) {
   bubble.replaceChildren();
   bubble.classList.remove("bubble--fields");
   if (role === "assistant") {
-    paintReadFields(bubble, [{ name: "assistant", title: "System" }], { assistant: content });
+    const title = message?.source || getReplySource();
+    paintReadFields(bubble, [{ name: "assistant", title }], { assistant: content });
     return;
   }
   if (!message) {
