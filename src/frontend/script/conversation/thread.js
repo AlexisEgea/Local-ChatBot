@@ -5,7 +5,9 @@ import { fillLayoutFields, readLayoutValues, resizeFields } from "./composer.js"
 import { getReplySource } from "../workspace/sidebar/model-options.js";
 
 const thread = document.getElementById("chat-thread");
+const conversation = document.getElementById("conversation");
 const messageMenu = document.getElementById("message-menu");
+const modelInfo = document.getElementById("model-info");
 const SEND_ICON =
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>';
 
@@ -58,11 +60,20 @@ function openMessageMenu(row, clientX, clientY) {
     edit.textContent = "Edit";
     messageMenu.appendChild(edit);
   }
-  const remove = document.createElement("button");
-  remove.type = "button";
-  remove.dataset.action = "delete";
-  remove.textContent = "Delete";
-  messageMenu.appendChild(remove);
+  if (role === "user") {
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.action = "delete";
+    remove.textContent = "Delete";
+    messageMenu.appendChild(remove);
+  }
+  if (role === "assistant") {
+    const info = document.createElement("button");
+    info.type = "button";
+    info.dataset.action = "info";
+    info.textContent = "Information";
+    messageMenu.appendChild(info);
+  }
   menuIndex = Number(row.dataset.index);
   placeMessageMenu(clientX, clientY);
 }
@@ -175,11 +186,13 @@ export function scrollToBottom() {
 /** Reset the thread to the empty-state prompt. */
 export function clearThread() {
   hideMessageMenu();
+  hideModelInfo();
   thread.innerHTML = '<p class="empty">How can I help you?</p>';
 }
 
 /** Replace the thread with a saved conversation. */
 export function renderThread(messages) {
+  hideModelInfo();
   thread.replaceChildren();
   const visible = messages.filter(
     (message) => message.role === "user" || message.role === "assistant" || message.role === "system",
@@ -385,6 +398,69 @@ thread.addEventListener("mousedown", (event) => {
   activeEdit.finish(false);
 });
 
+/** Hide the model information popup. */
+export function hideModelInfo() {
+  modelInfo.hidden = true;
+  modelInfo.replaceChildren();
+}
+
+/** Fill one Model sidebar row in the information popup. */
+function appendInfoField(section, label, value) {
+  if (!value) {
+    return;
+  }
+  const field = document.createElement("div");
+  field.className = "model-field";
+  const caption = document.createElement("span");
+  caption.textContent = label;
+  const text = document.createElement("p");
+  text.className = "model-info-value glass";
+  text.textContent = value;
+  field.append(caption, text);
+  section.appendChild(field);
+}
+
+/** Show a read-only glass copy of the Model sidebar for one reply. */
+export function showModelInfo(snapshot) {
+  modelInfo.replaceChildren();
+  const info = snapshot && typeof snapshot === "object" ? snapshot : {};
+
+  const modelSection = document.createElement("section");
+  modelSection.className = "sidebar-section";
+  const modelTitle = document.createElement("h2");
+  modelTitle.textContent = "Model";
+  modelSection.appendChild(modelTitle);
+  appendInfoField(modelSection, "Provider", info.provider);
+  appendInfoField(modelSection, "Company", info.company);
+  appendInfoField(modelSection, "Model", info.model);
+  modelInfo.appendChild(modelSection);
+
+  const parameters = Array.isArray(info.parameters) ? info.parameters : [];
+  if (parameters.length > 0) {
+    const paramSection = document.createElement("section");
+    paramSection.className = "sidebar-section";
+    const paramTitle = document.createElement("h2");
+    paramTitle.textContent = "Parameters";
+    paramSection.appendChild(paramTitle);
+    for (const parameter of parameters) {
+      appendInfoField(paramSection, parameter.label || parameter.id, parameter.value);
+    }
+    modelInfo.appendChild(paramSection);
+  }
+
+  modelInfo.hidden = false;
+}
+
+conversation.addEventListener("mousedown", (event) => {
+  if (modelInfo.hidden) {
+    return;
+  }
+  if (event.target.closest("#model-info")) {
+    return;
+  }
+  hideModelInfo();
+});
+
 /** Bind Copy / Edit on right-click, like the History menu. */
 export function onMessageMenuAction(handler) {
   menuHandler = handler;
@@ -414,6 +490,7 @@ export function onMessageMenuAction(handler) {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       hideMessageMenu();
+      hideModelInfo();
     }
   });
 }
