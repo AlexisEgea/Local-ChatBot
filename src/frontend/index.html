@@ -88,6 +88,7 @@
               </div>
             </div>
           </form>
+          <div id="model-info" class="model-info glass" hidden></div>
         </main>
       </div>
       </div>
@@ -96,9 +97,9 @@
       <aside class="side-rail" id="sidebar-outer-right" aria-expanded="false" aria-label="Chat Mode">
         <div class="side-rail-content" id="chat-mode">
           <section class="sidebar-section">
-            <h2>Chat Mode</h2>
+            <h2 id="chat-mode-heading">Chat Mode</h2>
             <label class="model-field">
-              <select id="choose-mode" class="model-select" name="choose-mode">
+              <select id="choose-mode" class="model-select" name="choose-mode" aria-labelledby="chat-mode-heading">
                 <option value="picker" selected>Chat Bar</option>
                 <option value="default">Default</option>
               </select>
@@ -122,9 +123,9 @@
           </section>
 
           <section class="sidebar-section">
-            <h2>Theme</h2>
+            <h2 id="theme-heading">Theme</h2>
             <label class="model-field">
-              <select id="theme-mode" class="model-select" name="theme-mode">
+              <select id="theme-mode" class="model-select" name="theme-mode" aria-labelledby="theme-heading">
                 <option value="light" selected>Light</option>
                 <option value="dark">Dark</option>
                 <option value="custom">Custom</option>

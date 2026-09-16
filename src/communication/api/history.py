@@ -7,6 +7,7 @@ import sys
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
+from typing import Any
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
@@ -32,6 +33,8 @@ class HistoryMessage(BaseModel):
     content: str = Field(..., min_length=1)
     layout: str | None = None
     values: dict[str, str] | None = None
+    source: str | None = None
+    model_info: dict[str, Any] | None = None
 
 
 class HistoryRequest(BaseModel):

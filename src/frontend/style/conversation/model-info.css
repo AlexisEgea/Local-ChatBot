@@ -1,0 +1,34 @@
+/* Read-only Model snapshot shown over the conversation. */
+
+.model-info {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  width: min(320px, calc(100% - 32px));
+  max-height: min(72%, 560px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 22px;
+}
+
+.model-info[hidden] {
+  display: none;
+}
+
+.model-info .sidebar-section + .sidebar-section {
+  margin-top: 18px;
+}
+
+.model-info-value {
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 18px;
+  color: var(--page-fg);
+  font: inherit;
+  font-size: 12px;
+}
