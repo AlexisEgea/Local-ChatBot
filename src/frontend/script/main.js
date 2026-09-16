@@ -18,12 +18,12 @@ import {
 } from "./conversation/composer.js";
 import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, exchangeRange, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/layouts.js";
 import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
-import { getModelConfig, getReplySource, initModelOptions } from "./workspace/sidebar/model-options.js";
+import { getModelConfig, getModelSnapshot, getReplySource, initModelOptions } from "./workspace/sidebar/model-options.js";
 import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
 import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
-import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, fillBubble, isMessageEditing, markError, onMessageMenuAction, renderThread, scrollToBottom, setEditingPickerMode } from "./conversation/thread.js";
+import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, fillBubble, isMessageEditing, markError, onMessageMenuAction, renderThread, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
 
 const messages = [];
 let conversationId = null;
@@ -111,16 +111,16 @@ async function handleSubmit() {
   });
   clearInput();
 
-  const source = getReplySource();
-  const pending = appendMessage("assistant", "…", "message--pending", null, { role: "assistant", source });
+  const pendingMeta = replyMeta();
+  const pending = appendMessage("assistant", "…", "message--pending", null, pendingMeta);
   setBusy(true);
 
   try {
     const { model, settings } = getModelConfig();
     const reply = await sendChat(messages, model, settings);
-    fillBubble(pending, "assistant", reply, { role: "assistant", source });
+    fillBubble(pending, "assistant", reply, pendingMeta);
     pending.parentElement.classList.remove("message--pending");
-    messages.push({ role: "assistant", content: reply, source });
+    messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
     pending.parentElement.dataset.index = String(messages.length - 1);
     await persistHistory();
   } catch (error) {
@@ -146,6 +146,11 @@ function rememberConversationStart() {
   if (!conversationId) {
     conversationId = newConversationId();
   }
+}
+
+/** Build the assistant metadata stored with a reply. */
+function replyMeta() {
+  return { role: "assistant", source: getReplySource(), model_info: getModelSnapshot() };
 }
 
 /** Count completed user/assistant rounds in the current thread. */
@@ -259,7 +264,14 @@ async function handleMessageMenu(action, index) {
     }
     return;
   }
+  if (action === "info") {
+    showModelInfo(message.model_info || getModelSnapshot());
+    return;
+  }
   if (action === "delete") {
+    if (message.role !== "user") {
+      return;
+    }
     const { start, end } = exchangeRange(messages, index);
     messages.splice(start, end - start + 1);
     if (messages.length === 0) {
@@ -304,15 +316,15 @@ async function handleMessageMenu(action, index) {
         messages.splice(start);
         messages.push(...outgoing);
         renderThread(messages);
-        const source = getReplySource();
-        const pending = appendMessage("assistant", "…", "message--pending", null, { role: "assistant", source });
+        const pendingMeta = replyMeta();
+        const pending = appendMessage("assistant", "…", "message--pending", null, pendingMeta);
         setBusy(true);
         try {
           const { model, settings } = getModelConfig();
           const reply = await sendChat(messages, model, settings);
-          fillBubble(pending, "assistant", reply, { role: "assistant", source });
+          fillBubble(pending, "assistant", reply, pendingMeta);
           pending.parentElement.classList.remove("message--pending");
-          messages.push({ role: "assistant", content: reply, source });
+          messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
           pending.parentElement.dataset.index = String(messages.length - 1);
           await persistHistory(userNumber <= 2);
         } catch (error) {
