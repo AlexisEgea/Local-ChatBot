@@ -14,6 +14,7 @@ class HistoryMessage(BaseModel):
     values: dict[str, str] | None = None
     source: str | None = None
     model_info: dict[str, Any] | None = None
+    id: str | None = None
 
 
 class HistoryRequest(BaseModel):
@@ -29,6 +30,14 @@ class HistoryResponse(BaseModel):
 
     id: str
     title: str
+
+
+class HistoryMessageResult(BaseModel):
+    """Conversation identifiers plus the message that was written."""
+
+    id: str
+    title: str
+    message: HistoryMessage
 
 
 class HistoryListItem(BaseModel):
@@ -51,3 +60,10 @@ class HistoryTitleRequest(BaseModel):
     """Manual rename of a saved conversation title."""
 
     title: str = Field(..., min_length=1, max_length=60)
+
+
+class HistoryMessageAppend(BaseModel):
+    """One new message appended to a saved conversation."""
+
+    message: HistoryMessage
+    refine_title: bool = False
