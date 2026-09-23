@@ -1,4 +1,4 @@
-"""Short conversation titles via a small extra LLM call."""
+"""Generate a short conversation title from the first exchanges."""
 
 from model.chat_completion_response import complete_chat
 
