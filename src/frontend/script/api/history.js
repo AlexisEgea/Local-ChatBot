@@ -11,22 +11,45 @@ async function readHistory(response) {
   return data;
 }
 
+/** Message fields sent on create/append; the backend owns ids. */
+function historyBody(message) {
+  return Object.fromEntries(Object.entries(message).filter(([key]) => key !== "id"));
+}
+
 /** Create a history file for a new conversation. */
 export async function createHistory(messages, conversationId) {
   const response = await fetch(`${API_BASE_URL}/api/history`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, id: conversationId }),
+    body: JSON.stringify({ messages: messages.map(historyBody), id: conversationId }),
   });
   return readHistory(response);
 }
 
-/** Overwrite messages in an existing history file. */
-export async function updateHistory(conversationId, messages, refineTitle = false) {
-  const response = await fetch(`${API_BASE_URL}/api/history/${conversationId}`, {
+/** Append one message to an existing history file. */
+export async function addHistoryMessage(conversationId, message, refineTitle = false) {
+  const response = await fetch(`${API_BASE_URL}/api/history/${conversationId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: historyBody(message), refine_title: refineTitle }),
+  });
+  return readHistory(response);
+}
+
+/** Update one message; the id is sent only in the path. */
+export async function updateHistoryMessage(conversationId, messageId, message) {
+  const response = await fetch(`${API_BASE_URL}/api/history/${conversationId}/messages/${messageId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, refine_title: refineTitle }),
+    body: JSON.stringify(historyBody(message)),
+  });
+  return readHistory(response);
+}
+
+/** Delete one message by id. */
+export async function deleteHistoryMessage(conversationId, messageId) {
+  const response = await fetch(`${API_BASE_URL}/api/history/${conversationId}/messages/${messageId}`, {
+    method: "DELETE",
   });
   return readHistory(response);
 }
