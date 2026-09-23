@@ -18,7 +18,8 @@ from history.body.conversation import (
     list_conversations,
     read_conversation,
 )
-from history.title import generate_title, set_title
+from history.title.generation import generate_title
+from history.title.assignment import set_title
 from communication.utils.dataclass.history import (
     HistoryDetail,
     HistoryListItem,

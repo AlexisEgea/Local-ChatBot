@@ -1,12 +1,8 @@
-"""Title of a saved history: generate it with the model, then store it."""
+"""Generate a short conversation title from the first exchanges."""
 
 from model.chat_completion_response import complete_chat
 
-from history.body.conversation import read_conversation, write_conversation
-from utils.timestamp import now_iso
-
 SNIPPET_LENGTH = 300
-TITLE_MAX_LENGTH = 60
 
 TITLE_SYSTEM = (
     "Summarize this chat in a short title of 3 to 8 words. "
@@ -65,14 +61,3 @@ def generate_title(messages: list[dict[str, str]]) -> str:
         model="openai/gpt-oss-20b",
     )
     return _clean_title(raw)
-
-
-def set_title(conversation_id: str, title: str) -> dict:
-    """Update only the generated title."""
-    payload = read_conversation(conversation_id)
-    cleaned = " ".join(title.split()).strip(" \"'")
-    if not cleaned:
-        raise ValueError("Title cannot be empty")
-    payload["title"] = cleaned[:TITLE_MAX_LENGTH]
-    payload["updated_at"] = now_iso()
-    return write_conversation(payload)
