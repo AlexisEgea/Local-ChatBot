@@ -4,7 +4,7 @@
  */
 
 import { sendChat } from "./api/chat.js";
-import { createHistory, deleteHistory, getHistory, listHistory, renameHistory, updateHistory } from "./api/history.js";
+import { addHistoryMessage, createHistory, deleteHistory, deleteHistoryMessage, getHistory, listHistory, renameHistory, updateHistoryMessage } from "./api/history.js";
 import {
   clearInput,
   focusInput,
@@ -158,7 +158,17 @@ function exchangeCount() {
   return messages.filter((message) => message.role === "assistant").length;
 }
 
-/** Save after the first exchange; replace the title after the second, or when asked. */
+/** Copy backend message ids onto the matching local turns. */
+function applyServerIds(local, remote) {
+  for (let index = 0; index < local.length; index += 1) {
+    const id = remote[index]?.id;
+    if (id) {
+      local[index].id = id;
+    }
+  }
+}
+
+/** Save after the first exchange; append only new messages afterwards. */
 async function persistHistory(refineTitle = null) {
   const exchanges = exchangeCount();
   if (exchanges < 1) {
@@ -170,10 +180,16 @@ async function persistHistory(refineTitle = null) {
       const saved = await createHistory(messages, conversationId);
       conversationId = saved.id;
       historySaved = true;
+      applyServerIds(messages, saved.messages || []);
       await refreshHistoryList();
       return;
     }
-    await updateHistory(conversationId, messages, refineTitle ?? exchanges === 2);
+    const pending = messages.filter((message) => !message.id);
+    for (let index = 0; index < pending.length; index += 1) {
+      const shouldRefine = Boolean(refineTitle ?? exchanges === 2) && index === pending.length - 1;
+      const saved = await addHistoryMessage(conversationId, pending[index], shouldRefine);
+      pending[index].id = saved.message.id;
+    }
     await refreshHistoryList();
   } catch (error) {
     console.error("Could not save conversation", error);
@@ -273,6 +289,7 @@ async function handleMessageMenu(action, index) {
       return;
     }
     const { start, end } = exchangeRange(messages, index);
+    const removed = messages.slice(start, end + 1);
     messages.splice(start, end - start + 1);
     if (messages.length === 0) {
       if (historySaved && conversationId) {
@@ -288,7 +305,12 @@ async function handleMessageMenu(action, index) {
     renderThread(messages);
     if (historySaved) {
       try {
-        await updateHistory(conversationId, messages, false);
+        for (const entry of removed) {
+          if (!entry.id) {
+            continue;
+          }
+          await deleteHistoryMessage(conversationId, entry.id);
+        }
         await refreshHistoryList();
       } catch (error) {
         console.error("Could not save conversation", error);
@@ -312,9 +334,32 @@ async function handleMessageMenu(action, index) {
       onCommit: async (nextLayout, nextValues) => {
         const userIndex = messages[start]?.role === "system" ? start + 1 : start;
         const userNumber = messages.slice(0, userIndex + 1).filter((entry) => entry.role === "user").length;
+        const removed = messages.splice(start);
         const outgoing = withLayoutMeta(buildOutgoingMessages(nextLayout, nextValues), nextLayout, nextValues);
-        messages.splice(start);
-        messages.push(...outgoing);
+        const reused = new Set();
+        const nextMessages = outgoing.map((entry, offset) => {
+          const previous = removed[offset];
+          if (previous?.id && previous.role === entry.role) {
+            reused.add(previous.id);
+            return { ...entry, id: previous.id };
+          }
+          return entry;
+        });
+        if (historySaved) {
+          for (const entry of nextMessages) {
+            if (!entry.id) {
+              continue;
+            }
+            await updateHistoryMessage(conversationId, entry.id, entry);
+          }
+          for (const entry of removed) {
+            if (!entry.id || reused.has(entry.id)) {
+              continue;
+            }
+            await deleteHistoryMessage(conversationId, entry.id);
+          }
+        }
+        messages.push(...nextMessages);
         renderThread(messages);
         const pendingMeta = replyMeta();
         const pending = appendMessage("assistant", "…", "message--pending", null, pendingMeta);
