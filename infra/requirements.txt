@@ -1,4 +1,5 @@
 transformers==5.17.0
+huggingface-hub>=1.5.0,<2.0.0
 # GPU build (not the default CPU wheel from PyPI):
 # pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cu130
 torch==2.14.0
