@@ -5,16 +5,18 @@ from __future__ import annotations
 import os
 
 from model.huggingface.provider import HuggingFaceProvider
+from model.local.provider import LocalProvider
 from model.provider import Provider
 from model.test.provider import TestProvider
 
 _huggingface = HuggingFaceProvider()
+_local = LocalProvider()
 _test = TestProvider()
 
 # Sidebar order.
-PANEL_PROVIDERS: tuple[Provider, ...] = (_huggingface, _test)
+PANEL_PROVIDERS: tuple[Provider, ...] = (_huggingface, _local, _test)
 # Specific catalogs first; Hugging Face accepts remaining ids.
-RESOLVE_PROVIDERS: tuple[Provider, ...] = (_test, _huggingface)
+RESOLVE_PROVIDERS: tuple[Provider, ...] = (_test, _local, _huggingface)
 
 
 def get_registered_providers() -> tuple[Provider, ...]:
