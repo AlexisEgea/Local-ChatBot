@@ -22,6 +22,7 @@ from model.huggingface.parameter import (
     supports_reasoning,
 )
 from model.huggingface.repo import repo_id, repo_json, repo_tags
+from model.parameter import sanitize_settings
 from model.provider import Provider
 
 
@@ -86,8 +87,6 @@ class HuggingFaceProvider(Provider):
         max_tokens: int | None = None,
     ) -> str:
         """Send chat messages to the Hugging Face router."""
-        from model.parameter import sanitize_settings
-
         model_id, cleaned = sanitize_settings(model, settings)
         if max_tokens is not None:
             cleaned["max_tokens"] = max_tokens
