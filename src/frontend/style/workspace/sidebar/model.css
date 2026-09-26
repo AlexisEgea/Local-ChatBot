@@ -87,6 +87,10 @@
   overflow: hidden;
 }
 
+.sidebar-section--params[hidden] {
+  display: none;
+}
+
 .sidebar-section--params h2 {
   flex: 0 0 auto;
 }
