@@ -10,6 +10,8 @@ from openai import OpenAI
 from model.huggingface.constant import (
     API_BASE_URL,
     CACHE_TTL_SECONDS,
+    DEFAULT_COMPANY_ID,
+    DEFAULT_MODEL_ID,
     OPENAI_CREATE_KEYS,
     PROVIDER_ID,
     PROVIDER_LABEL,
@@ -157,3 +159,24 @@ class HuggingFaceProvider(Provider):
             })
         models.sort(key=lambda model: model["id"].lower())
         return models
+
+    def get_panel_entry(self) -> dict | None:
+        """Put OpenAI / gpt-oss-20b first in the Hugging Face sidebar lists."""
+        entry = super().get_panel_entry()
+        if not entry:
+            return None
+        default_company = DEFAULT_COMPANY_ID.lower()
+        entry["companies"].sort(
+            key=lambda company: (0 if company["id"].lower() == default_company else 1, company["id"].lower())
+        )
+        for company in entry["companies"]:
+            if company["id"].lower() != default_company:
+                continue
+            company["models"].sort(key=lambda model: (0 if self._is_default_model(model) else 1, model["label"].lower()))
+        return entry
+
+    def _is_default_model(self, model: dict) -> bool:
+        """Return True for openai/gpt-oss-20b, including router id suffixes."""
+        model_id = (model.get("id") or "").lower()
+        label = (model.get("label") or "").lower().replace("_", "-")
+        return model_id == DEFAULT_MODEL_ID.lower() or model_id.startswith(f"{DEFAULT_MODEL_ID.lower()}:") or label == "gpt-oss-20b"
