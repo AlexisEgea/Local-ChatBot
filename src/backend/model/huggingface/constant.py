@@ -3,6 +3,8 @@
 PROVIDER_ID = "huggingface"
 PROVIDER_LABEL = "Hugging Face"
 TITLE_MODEL_ID = "openai/gpt-oss-20b"
+DEFAULT_COMPANY_ID = "openai"
+DEFAULT_MODEL_ID = "gpt-oss-20b"
 API_BASE_URL = "https://router.huggingface.co/v1"
 
 CACHE_TTL_SECONDS = 300
