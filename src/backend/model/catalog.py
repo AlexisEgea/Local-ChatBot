@@ -2,6 +2,7 @@
 
 import os
 
+from model.huggingface.constant import DEFAULT_MODEL_ID
 from model.registry import get_registered_providers
 
 
@@ -18,6 +19,12 @@ def get_default_id(provider: dict) -> str | None:
     env_default = (os.getenv("DEFAULT_MODEL") or "").strip()
     if env_default in ids:
         return env_default
+    if provider.get("id") == "huggingface":
+        wanted = DEFAULT_MODEL_ID.lower()
+        for model_id in ids:
+            lowered = model_id.lower()
+            if lowered == wanted or lowered.startswith(f"{wanted}:"):
+                return model_id
     return ids[0]
 
 
