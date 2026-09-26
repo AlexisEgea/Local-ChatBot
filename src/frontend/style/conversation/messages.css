@@ -48,6 +48,8 @@
 
 .message--assistant .bubble {
   border-bottom-left-radius: 8px;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .message--system:not(.is-editing) .bubble-field-text {
