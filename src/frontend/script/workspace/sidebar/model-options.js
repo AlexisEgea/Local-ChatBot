@@ -1,14 +1,17 @@
 /** Model panel: pick a provider model and edit its generation parameters. */
 
-import { getModelParameters, getModels } from "../../api/models.js";
+import { addLocalModel, getModelParameters, getModels } from "../../api/models.js";
 
 const STORAGE_KEY = "local-chatbot-model";
+const LOCAL_PROVIDER_ID = "local";
 const providerSelect = document.getElementById("model-provider");
 const companySelect = document.getElementById("model-company");
 const modelSelect = document.getElementById("model-select");
 const modelDescription = document.getElementById("model-description");
 const modelParams = document.getElementById("model-params");
 const paramsSection = document.querySelector(".sidebar-section--params");
+const companyField = document.getElementById("model-company-field");
+const folderInput = document.getElementById("local-model-folder");
 const modelMenu = document.getElementById("model-menu");
 
 let openChoiceSelect = null;
@@ -127,6 +130,11 @@ export function enhanceSelect(select) {
   trigger.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
+    if (select === modelSelect && providerSelect.value === LOCAL_PROVIDER_ID) {
+      hideModelMenu();
+      pickLocalFolder();
+      return;
+    }
     if (!modelMenu.hidden && openChoiceSelect === select) {
       hideModelMenu();
       return;
@@ -394,7 +402,10 @@ async function loadParameters(modelId) {
   if (!modelId) {
     currentParameters = [];
     showParamsSection(false);
-    modelDescription.textContent = "";
+    modelDescription.textContent =
+      providerSelect.value === LOCAL_PROVIDER_ID
+        ? "Click Model and choose a Hugging Face folder that contains config.json."
+        : "";
     return;
   }
   modelDescription.textContent = "Loading parameters…";
@@ -486,7 +497,82 @@ function syncCompanyAndModel(preferredModelId) {
     selectedCompany?.models.find((entry) => entry.id === (preferredModelId || modelSelect.value)) ??
     selectedCompany?.models[0];
   fillSelect(modelSelect, selectedCompany?.models ?? [], model?.id);
+  syncLocalFields();
   return model;
+}
+
+/** Hide Company when Local is selected; Model opens a folder dialog. */
+function syncLocalFields() {
+  const isLocal = providerSelect.value === LOCAL_PROVIDER_ID;
+  if (companyField) {
+    companyField.hidden = isLocal;
+  }
+  providerSelect.closest(".sidebar-section")?.classList.toggle("model-section--local", isLocal);
+}
+
+/** Merge a path-only catalog row into the in-memory Local provider. */
+function upsertLocalCatalog(entry) {
+  let provider = options.providers.find((item) => item.id === LOCAL_PROVIDER_ID);
+  if (!provider) {
+    provider = { id: LOCAL_PROVIDER_ID, label: "Local", companies: [] };
+    options.providers.push(provider);
+  }
+  const companyId = entry.company || "Local";
+  let company = provider.companies.find((item) => item.id === companyId);
+  if (!company) {
+    company = { id: companyId, label: companyId, models: [] };
+    provider.companies.push(company);
+  }
+  if (!company.models.some((item) => item.id === entry.id)) {
+    company.models.push({
+      id: entry.id,
+      label: entry.label,
+      context_length: entry.context_length,
+    });
+  }
+}
+
+/** Select a local folder as the active model without loading weights. */
+function selectLocalEntry(entry) {
+  upsertLocalCatalog(entry);
+  fillSelect(providerSelect, options.providers, LOCAL_PROVIDER_ID);
+  const model = syncCompanyAndModel(entry.id);
+  if (model) {
+    loadParameters(model.id);
+  }
+}
+
+/** Open the browser directory picker. Must stay synchronous with the click. */
+function pickLocalFolder() {
+  folderInput?.click();
+}
+
+/** Register the folder chosen in the browser picker and load config.json from disk. */
+async function onLocalFolderChosen() {
+  const files = [...(folderInput?.files ?? [])];
+  if (folderInput) {
+    folderInput.value = "";
+  }
+  if (!files.length) {
+    return;
+  }
+  const relative = (files[0].webkitRelativePath || files[0].name).replaceAll("\\", "/");
+  const folderName = relative.includes("/") ? relative.split("/")[0] : relative;
+  const hasConfig = files.some((file) => {
+    const path = (file.webkitRelativePath || file.name).replaceAll("\\", "/");
+    return path === `${folderName}/config.json` || file.name === "config.json";
+  });
+  if (!hasConfig) {
+    modelDescription.textContent = "Choose a Hugging Face folder that contains config.json.";
+    return;
+  }
+  try {
+    const entry = await addLocalModel(folderName);
+    modelDescription.textContent = "";
+    selectLocalEntry(entry);
+  } catch (error) {
+    modelDescription.textContent = error.message;
+  }
 }
 
 /** Load provider models, restore the last choice, and bind the Model panel. */
@@ -509,12 +595,15 @@ export async function initModelOptions() {
   fillSelect(providerSelect, options.providers, selected.provider.id);
   fillSelect(companySelect, selected.provider.companies, selected.company.id);
   fillSelect(modelSelect, selected.company.models, selected.model.id);
+  syncLocalFields();
 
   providerSelect.addEventListener("change", () => {
     companySelect.value = "";
     const model = syncCompanyAndModel();
     if (model) {
       loadParameters(model.id);
+    } else {
+      loadParameters("");
     }
   });
   companySelect.addEventListener("change", () => {
@@ -553,4 +642,8 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     hideModelMenu();
   }
+});
+
+folderInput?.addEventListener("change", () => {
+  onLocalFolderChosen();
 });
