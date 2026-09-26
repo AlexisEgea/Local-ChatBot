@@ -1,6 +1,7 @@
 """Generate a short conversation title from the first exchanges."""
 
-from model.chat_completion_response import complete_chat
+from model.huggingface.constant import PROVIDER_ID, TITLE_MODEL_ID
+from model.registry import get_provider_by_id
 
 SNIPPET_LENGTH = 300
 
@@ -52,12 +53,12 @@ def generate_title(messages: list[dict[str, str]]) -> str:
     if user_count == 0:
         return ""
 
-    raw = complete_chat(
+    raw = get_provider_by_id(PROVIDER_ID).complete_chat(
         [
             {"role": "system", "content": TITLE_SYSTEM},
             {"role": "user", "content": "\n".join(snippets)},
         ],
+        model=TITLE_MODEL_ID,
         max_tokens=256,
-        model="openai/gpt-oss-20b",
     )
     return _clean_title(raw)
