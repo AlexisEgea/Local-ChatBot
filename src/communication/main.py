@@ -46,7 +46,10 @@ def run_server() -> None:
 
     from communication.api.app import app
 
-    uvicorn.run(app, host=host, port=port)
+    try:
+        uvicorn.run(app, host=host, port=port, timeout_graceful_shutdown=1)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":
