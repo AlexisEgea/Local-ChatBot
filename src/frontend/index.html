@@ -40,7 +40,7 @@
               <span>Provider</span>
               <select id="model-provider" class="model-select"></select>
             </label>
-            <label class="model-field">
+            <label class="model-field" id="model-company-field">
               <span>Company</span>
               <select id="model-company" class="model-select"></select>
             </label>
@@ -48,6 +48,15 @@
               <span>Model</span>
               <select id="model-select" class="model-select"></select>
             </label>
+            <input
+              id="local-model-folder"
+              class="local-folder-input"
+              type="file"
+              webkitdirectory
+              directory
+              tabindex="-1"
+              aria-hidden="true"
+            />
             <p id="model-description" class="model-description"></p>
           </section>
           <section class="sidebar-section sidebar-section--params">
