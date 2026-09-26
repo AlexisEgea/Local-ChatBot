@@ -11,8 +11,8 @@ BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from model.sources.available_models import list_model_options
-from model.parameters.list_model_parameters import list_model_parameters
+from model.catalog import list_model_options
+from model.parameter import list_model_parameters
 
 router = APIRouter()
 

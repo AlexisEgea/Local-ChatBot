@@ -23,7 +23,7 @@ import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.j
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
 import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
-import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, fillBubble, isMessageEditing, markError, onMessageMenuAction, renderThread, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
+import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, revealAssistantBubble, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
 
 const messages = [];
 let conversationId = null;
@@ -118,7 +118,7 @@ async function handleSubmit() {
   try {
     const { model, settings } = getModelConfig();
     const reply = await sendChat(messages, model, settings);
-    fillBubble(pending, "assistant", reply, pendingMeta);
+    await revealAssistantBubble(pending, reply, pendingMeta);
     pending.parentElement.classList.remove("message--pending");
     messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
     pending.parentElement.dataset.index = String(messages.length - 1);
@@ -367,7 +367,7 @@ async function handleMessageMenu(action, index) {
         try {
           const { model, settings } = getModelConfig();
           const reply = await sendChat(messages, model, settings);
-          fillBubble(pending, "assistant", reply, pendingMeta);
+          await revealAssistantBubble(pending, reply, pendingMeta);
           pending.parentElement.classList.remove("message--pending");
           messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
           pending.parentElement.dataset.index = String(messages.length - 1);

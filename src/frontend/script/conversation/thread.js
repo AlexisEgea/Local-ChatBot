@@ -3,6 +3,8 @@
 import { convertLayoutValues, inferLayout, LAYOUTS, parseCgse } from "./layouts.js";
 import { fillLayoutFields, readLayoutValues, resizeFields } from "./composer.js";
 import { getReplySource } from "../workspace/sidebar/model-options.js";
+import { cancelTextReveal, revealText, skipTextReveal } from "./reveal.js";
+import { onCodeCopyClick, paintMarkdown } from "./markdown.js";
 
 const thread = document.getElementById("chat-thread");
 const conversation = document.getElementById("conversation");
@@ -93,7 +95,12 @@ function paintReadFields(bubble, fields, values) {
     label.textContent = field.title ?? field.placeholder;
     const text = document.createElement("div");
     text.className = "bubble-field-text";
-    text.textContent = value;
+    if (field.name === "assistant") {
+      text.classList.add("markdown");
+      paintMarkdown(text, value);
+    } else {
+      text.textContent = value;
+    }
     block.append(label, text);
     bubble.appendChild(block);
   }
@@ -150,6 +157,28 @@ export function fillBubble(bubble, role, content, message = null) {
   paintReadFields(bubble, LAYOUTS.user.fields, { user: message.values?.user ?? content });
 }
 
+/** Paint an assistant bubble and reveal its reply letter by letter. */
+export async function revealAssistantBubble(bubble, content, message = null) {
+  bubble.replaceChildren();
+  bubble.classList.remove("bubble--fields");
+  const title = message?.source || getReplySource();
+  paintReadFields(bubble, [{ name: "assistant", title }], { assistant: "\u00a0" });
+  const field = bubble.querySelector(".bubble-field-text");
+  const onSkip = (event) => {
+    if (event.button !== 0 || event.target.closest(".code-block-copy")) {
+      return;
+    }
+    event.preventDefault();
+    skipTextReveal();
+  };
+  bubble.addEventListener("click", onSkip);
+  try {
+    await revealText(field, content, scrollToBottom, paintMarkdown);
+  } finally {
+    bubble.removeEventListener("click", onSkip);
+  }
+}
+
 /** Append chat bubbles: one per field, or a single assistant / Default bubble. */
 export function appendMessage(role, content, extraClass = "", index = null, message = null) {
   if (role === "user" && message) {
@@ -185,6 +214,7 @@ export function scrollToBottom() {
 
 /** Reset the thread to the empty-state prompt. */
 export function clearThread() {
+  cancelTextReveal();
   hideMessageMenu();
   hideModelInfo();
   thread.innerHTML = '<p class="empty">How can I help you?</p>';
@@ -192,6 +222,7 @@ export function clearThread() {
 
 /** Replace the thread with a saved conversation. */
 export function renderThread(messages) {
+  cancelTextReveal();
   hideModelInfo();
   thread.replaceChildren();
   const visible = messages.filter(
@@ -387,6 +418,8 @@ export function isMessageEditing() {
 export function setEditingPickerMode() {
   activeEdit?.syncPickerClass();
 }
+
+thread.addEventListener("click", onCodeCopyClick, true);
 
 thread.addEventListener("mousedown", (event) => {
   if (!activeEdit) {

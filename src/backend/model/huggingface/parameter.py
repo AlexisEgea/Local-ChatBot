@@ -1,6 +1,17 @@
-"""Generation parameters taken from the model's Hugging Face repository."""
+"""Hugging Face generation knobs and Hub generation_config overlays."""
 
 from __future__ import annotations
+
+from model.parameter import clamp_value
+
+_REASONING_HINTS = (
+    "gpt-oss",
+    "reasoning",
+    "thinking",
+    "reasoner",
+    "deepseek-r1",
+    "qwq",
+)
 
 HUB_KEY_ALIASES = {
     "max_new_tokens": "max_tokens",
@@ -19,27 +30,78 @@ _SKIP_KEYS = {
 }
 
 
-def clamp_value(parameter: dict, raw: object):
-    """Coerce one setting to the parameter type and range."""
-    kind = parameter["type"]
-    if kind == "boolean":
-        if isinstance(raw, str):
-            return raw.lower() in {"1", "true", "yes", "on"}
-        return bool(raw)
-    if kind == "select":
-        allowed = {option["id"] for option in parameter["options"]}
-        return raw if raw in allowed else parameter["default"]
-    try:
-        value = int(raw) if kind == "integer" else float(raw)
-    except (TypeError, ValueError) as error:
-        raise ValueError(f"Invalid {parameter['id']}") from error
-    low = parameter.get("min")
-    high = parameter.get("max")
-    if low is not None:
-        value = max(low, value)
-    if high is not None:
-        value = min(high, value)
-    return value
+def huggingface_chat_parameters(context_length: int | None) -> list[dict]:
+    """Return the Hugging Face OpenAI-compatible chat knobs for this context window."""
+    high = context_length or 4096
+    return [
+        {
+            "id": "max_tokens",
+            "label": "Max tokens",
+            "type": "integer",
+            "min": 1,
+            "max": high,
+            "step": 1,
+            "default": min(256, high),
+        },
+        {
+            "id": "temperature",
+            "label": "Temperature",
+            "type": "number",
+            "min": 0,
+            "max": 2,
+            "step": 0.05,
+            "default": 1,
+        },
+        {
+            "id": "top_p",
+            "label": "Top p",
+            "type": "number",
+            "min": 0,
+            "max": 1,
+            "step": 0.05,
+            "default": 1,
+        },
+        {
+            "id": "frequency_penalty",
+            "label": "Frequency penalty",
+            "type": "number",
+            "min": -2,
+            "max": 2,
+            "step": 0.1,
+            "default": 0,
+        },
+        {
+            "id": "presence_penalty",
+            "label": "Presence penalty",
+            "type": "number",
+            "min": -2,
+            "max": 2,
+            "step": 0.1,
+            "default": 0,
+        },
+    ]
+
+
+def reasoning_parameter() -> dict:
+    """Return the chat-API reasoning control for models that support it."""
+    return {
+        "id": "reasoning_effort",
+        "label": "Reasoning effort",
+        "type": "select",
+        "default": "low",
+        "options": [
+            {"id": "none", "label": "None"},
+            {"id": "low", "label": "Low"},
+            {"id": "medium", "label": "Medium"},
+            {"id": "high", "label": "High"},
+        ],
+    }
+
+
+def supports_reasoning(model_id: str, tags: list[str]) -> bool:
+    """Return True when the model id or Hub tags look like a reasoning model."""
+    blob = f"{model_id} {' '.join(tags)}".lower()
+    return any(hint in blob for hint in _REASONING_HINTS)
 
 
 def apply_hub_defaults(parameters: list[dict], config: dict) -> None:

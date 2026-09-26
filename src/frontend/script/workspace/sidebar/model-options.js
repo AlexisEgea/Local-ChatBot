@@ -8,6 +8,7 @@ const companySelect = document.getElementById("model-company");
 const modelSelect = document.getElementById("model-select");
 const modelDescription = document.getElementById("model-description");
 const modelParams = document.getElementById("model-params");
+const paramsSection = document.querySelector(".sidebar-section--params");
 const modelMenu = document.getElementById("model-menu");
 
 let openChoiceSelect = null;
@@ -363,10 +364,18 @@ function renderSelect(parameter, value) {
   return label;
 }
 
+/** Hide the Parameters heading when the selected model has none. */
+function showParamsSection(visible) {
+  if (paramsSection) {
+    paramsSection.hidden = !visible;
+  }
+}
+
 /** Draw the parameters that belong to the selected model. */
 function renderParams(modelId) {
   const settings = settingsFor(modelId);
   modelParams.replaceChildren();
+  showParamsSection(currentParameters.length > 0);
   for (const parameter of currentParameters) {
     const value = settings[parameter.id];
     if (parameter.type === "boolean") {
@@ -382,6 +391,12 @@ function renderParams(modelId) {
 /** Fetch and show the parameters associated with one model. */
 async function loadParameters(modelId) {
   modelParams.replaceChildren();
+  if (!modelId) {
+    currentParameters = [];
+    showParamsSection(false);
+    modelDescription.textContent = "";
+    return;
+  }
   modelDescription.textContent = "Loading parameters…";
   try {
     currentParameters = await getModelParameters(modelId);
@@ -390,6 +405,7 @@ async function loadParameters(modelId) {
     persist();
   } catch (error) {
     currentParameters = [];
+    showParamsSection(false);
     console.error("Could not load model parameters", error);
     modelDescription.textContent = "Could not load parameters for this model.";
   }

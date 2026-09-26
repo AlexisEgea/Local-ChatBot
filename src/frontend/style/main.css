@@ -8,5 +8,6 @@
 @import url("./workspace/sidebar/chat-mode.css");
 @import url("./workspace/sidebar/theme.css");
 @import url("./conversation/messages.css");
+@import url("./conversation/markdown.css");
 @import url("./conversation/composer.css");
 @import url("./conversation/model-info.css");

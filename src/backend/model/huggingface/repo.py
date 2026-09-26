@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 
 
@@ -32,7 +33,8 @@ def http_json(url: str) -> dict | None:
 
 def repo_json(repo: str, filename: str) -> dict | None:
     """Download a JSON file from the model repo, or None when it is missing."""
-    return http_json(f"https://huggingface.co/{repo}/resolve/main/{filename}")
+    path = urllib.parse.quote(repo, safe="/")
+    return http_json(f"https://huggingface.co/{path}/resolve/main/{filename}")
 
 
 def repo_tags(repo: str) -> list[str]:

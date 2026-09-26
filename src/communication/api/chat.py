@@ -13,8 +13,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from model.chat_completion_response import complete_chat
-from model.parameters.list_model_parameters import sanitize_settings
+from model.registry import get_resolved_provider
 
 router = APIRouter()
 
@@ -42,21 +41,19 @@ class ChatResponse(BaseModel):
 
 @router.post("/api/chat", response_model=ChatResponse)
 async def create_chat(payload: ChatRequest) -> ChatResponse:
-    """Send the conversation to Hugging Face Inference and return the reply."""
+    """Send the conversation to the selected provider and return the reply."""
     try:
-        model_id, settings = sanitize_settings(payload.model, payload.settings)
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error)) from error
-
-    try:
+        provider, model_id = get_resolved_provider(payload.model)
         content = await asyncio.to_thread(
             partial(
-                complete_chat,
+                provider.complete_chat,
                 [message.model_dump() for message in payload.messages],
                 model=model_id,
-                settings=settings,
+                settings=payload.settings,
             )
         )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as error:
         traceback.print_exc()
         raise HTTPException(status_code=502, detail=str(error)) from error
