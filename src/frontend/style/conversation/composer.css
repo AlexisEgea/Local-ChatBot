@@ -123,6 +123,11 @@
   cursor: default;
 }
 
+.composer-row > button.is-stop {
+  opacity: 1;
+  cursor: pointer;
+}
+
 .conversation {
   position: relative;
 }
