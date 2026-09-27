@@ -1,7 +1,10 @@
 from fastapi import WebSocket
 import asyncio
+from contextlib import asynccontextmanager
 
 connections: set[WebSocket] = set()
+_jobs: dict[str, asyncio.Event] = {}
+_pending: set[str] = set()
 
 
 async def connect(ws: WebSocket):
@@ -27,3 +30,29 @@ async def broadcast(event: dict):
         except Exception as e:
             print(f"[WS] send failed: {e}")
             connections.discard(ws)
+
+
+@asynccontextmanager
+async def start_execution(key: str):
+    """Register a chat job and yield its stop event until the handler finishes."""
+    event = asyncio.Event()
+    if key in _pending:
+        _pending.discard(key)
+        event.set()
+    _jobs[key] = event
+    try:
+        yield event
+    finally:
+        _jobs.pop(key, None)
+        _pending.discard(key)
+
+
+def stop_execution(key: str) -> None:
+    """Abort the in-flight job, even if create_chat has not registered it yet."""
+    if not key:
+        return
+    event = _jobs.get(key)
+    if event is not None:
+        event.set()
+        return
+    _pending.add(key)

@@ -3,7 +3,7 @@
 import { convertLayoutValues, inferLayout, LAYOUTS, parseCgse } from "./layouts.js";
 import { fillLayoutFields, readLayoutValues, resizeFields } from "./composer.js";
 import { getReplySource } from "../workspace/sidebar/model-options.js";
-import { cancelTextReveal, revealText, skipTextReveal } from "./reveal.js";
+import { cancelTextReveal, getRevealedText, revealFrom, revealText, skipTextReveal } from "./reveal.js";
 import { onCodeCopyClick, paintMarkdown } from "./markdown.js";
 
 const thread = document.getElementById("chat-thread");
@@ -193,6 +193,28 @@ export async function revealAssistantBubble(bubble, content, message = null) {
   } finally {
     row?.removeEventListener("pointerdown", onSkip, true);
   }
+}
+
+/** Keep the typed text, then type a stop notice on the next line. */
+export async function appendStoppedReply(bubble, notice) {
+  const field = bubble.querySelector(".bubble-field-text");
+  if (!field) {
+    await revealAssistantBubble(bubble, notice);
+    return notice;
+  }
+  const kept = getRevealedText();
+  const prefix = kept ? `${kept}\n\n` : "";
+  await revealFrom(field, prefix, notice, scrollToBottom, (element, slice) => {
+    paintMarkdown(element, slice);
+    if (slice.length <= prefix.length) {
+      return;
+    }
+    const last = element.lastElementChild;
+    if (last && last !== element.firstElementChild) {
+      last.style.marginTop = "1.5em";
+    }
+  });
+  return `${prefix}${notice}`;
 }
 
 /** Append chat bubbles: one per field, or a single assistant / Default bubble. */
