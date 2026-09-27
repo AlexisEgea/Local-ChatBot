@@ -1,9 +1,10 @@
 /** Model panel: pick a provider model and edit its generation parameters. */
 
-import { addLocalModel, getModelParameters, getModels } from "../../api/models.js";
+import { addLocalModel, getModelParameters, getModelPricing, getModels } from "../../api/models.js";
 
 const STORAGE_KEY = "local-chatbot-model";
 const LOCAL_PROVIDER_ID = "local";
+const OPENAI_PROVIDER_ID = "openai";
 const providerSelect = document.getElementById("model-provider");
 const companySelect = document.getElementById("model-company");
 const modelSelect = document.getElementById("model-select");
@@ -13,12 +14,17 @@ const paramsSection = document.querySelector(".sidebar-section--params");
 const companyField = document.getElementById("model-company-field");
 const folderInput = document.getElementById("local-model-folder");
 const modelMenu = document.getElementById("model-menu");
+const pricingRoot = document.getElementById("model-pricing");
+const priceInput = document.getElementById("model-price-input");
+const priceOutput = document.getElementById("model-price-output");
 
 let openChoiceSelect = null;
 let openChoiceTrigger = null;
 
 let options = { default_id: "", providers: [] };
 let currentParameters = [];
+let currentPricing = null;
+let pricingModelId = "";
 
 /** Read the last model choice from localStorage. */
 function readStore() {
@@ -398,10 +404,16 @@ function renderParams(modelId) {
 
 /** Fetch and show the parameters associated with one model. */
 async function loadParameters(modelId) {
+  if (providerSelect.value !== OPENAI_PROVIDER_ID) {
+    clearPricing();
+  } else {
+    hidePricing();
+  }
   modelParams.replaceChildren();
   if (!modelId) {
     currentParameters = [];
     showParamsSection(false);
+    clearPricing();
     modelDescription.textContent =
       providerSelect.value === LOCAL_PROVIDER_ID
         ? "Click Model and choose a Hugging Face folder that contains config.json."
@@ -419,6 +431,81 @@ async function loadParameters(modelId) {
     showParamsSection(false);
     console.error("Could not load model parameters", error);
     modelDescription.textContent = "Could not load parameters for this model.";
+  }
+  await loadPricing(modelId);
+}
+
+/** Format a USD rate as `$0.15 / 1M tokens`. */
+function formatMillionRate(value) {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "";
+  }
+  const amount = Number(value);
+  const text = Number.isInteger(amount) ? amount.toFixed(2) : String(amount);
+  return `$${text} / 1M tokens`;
+}
+
+/** Hide the Pricing section until rates are confirmed. */
+function hidePricing() {
+  if (pricingRoot) {
+    pricingRoot.hidden = true;
+  }
+}
+
+/** Drop cached rates and hide Pricing. */
+function clearPricing() {
+  currentPricing = null;
+  pricingModelId = "";
+  if (priceInput) {
+    priceInput.textContent = "";
+  }
+  if (priceOutput) {
+    priceOutput.textContent = "";
+  }
+  hidePricing();
+}
+
+/** Show confirmed OpenAI rates in the Pricing section. */
+function showPricing(rates) {
+  if (!pricingRoot || !priceInput || !priceOutput) {
+    return;
+  }
+  currentPricing = {
+    input_per_million: rates.input_per_million,
+    output_per_million: rates.output_per_million,
+  };
+  priceInput.textContent = formatMillionRate(rates.input_per_million);
+  priceOutput.textContent = formatMillionRate(rates.output_per_million);
+  pricingRoot.hidden = false;
+}
+
+/** Fetch OpenAI standard rates once per selected model id. */
+async function loadPricing(modelId) {
+  if (providerSelect.value !== OPENAI_PROVIDER_ID || !modelId) {
+    clearPricing();
+    return;
+  }
+  if (pricingModelId === modelId && currentPricing) {
+    showPricing(currentPricing);
+    return;
+  }
+  try {
+    const rates = await getModelPricing(modelId);
+    if (providerSelect.value !== OPENAI_PROVIDER_ID || modelSelect.value !== modelId) {
+      return;
+    }
+    if (rates.input_per_million == null || rates.output_per_million == null) {
+      clearPricing();
+      return;
+    }
+    pricingModelId = modelId;
+    showPricing(rates);
+  } catch (error) {
+    console.error("Could not load model pricing", error);
+    if (providerSelect.value !== OPENAI_PROVIDER_ID || modelSelect.value !== modelId) {
+      return;
+    }
+    clearPricing();
   }
 }
 
@@ -454,6 +541,8 @@ export function getModelSnapshot() {
     provider: found.provider?.label || found.provider?.id || "",
     company: found.company?.label || found.company?.id || "",
     model: found.model?.label || modelId || "",
+    input_rate: currentPricing ? formatMillionRate(currentPricing.input_per_million) : "",
+    output_rate: currentPricing ? formatMillionRate(currentPricing.output_per_million) : "",
     parameters: currentParameters.map((parameter) => ({
       id: parameter.id,
       label: parameter.label,
