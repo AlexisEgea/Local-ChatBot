@@ -19,8 +19,6 @@ from model.registry import get_resolved_provider
 
 router = APIRouter()
 
-STOPPED_REPLY = "Generation was stopped by the user."
-
 
 def _silence_task(task: asyncio.Task) -> None:
     """Drop the result of a background complete_chat thread after a stop."""
@@ -95,7 +93,7 @@ async def create_chat(payload: ChatRequest) -> ChatResponse:
     try:
         content = await _complete_or_stop(payload)
     except GenerationStopped:
-        return ChatResponse(content=STOPPED_REPLY)
+        return ChatResponse(content="Stopped by user")
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as error:
