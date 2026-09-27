@@ -3,7 +3,8 @@
  * Coordinates composer input, thread rendering, the sidebar, and the backend API.
  */
 
-import { sendChat } from "./api/chat.js";
+import { sendChat, STOPPED_REPLY } from "./api/chat.js";
+import { stopExecution } from "./api/execution.js";
 import { addHistoryMessage, createHistory, deleteHistory, deleteHistoryMessage, getHistory, listHistory, renameHistory, updateHistoryMessage } from "./api/history.js";
 import {
   clearInput,
@@ -11,6 +12,7 @@ import {
   getComposerValues,
   getCurrentLayout,
   onLayoutPick,
+  onStop,
   onSubmit,
   renderFields,
   setBusy,
@@ -23,11 +25,13 @@ import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.j
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
 import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
-import { appendMessage, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, revealAssistantBubble, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
+import { haltTextReveal } from "./conversation/reveal.js";
+import { appendMessage, appendStoppedReply, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, revealAssistantBubble, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
 
 const messages = [];
 let conversationId = null;
 let historySaved = false;
+let activeJob = null;
 
 /** Apply a conversation layout: the edited bubble while editing, otherwise the composer. */
 function applyLayout(layoutId) {
@@ -95,7 +99,7 @@ function canSend(layoutId, values) {
 async function handleSubmit() {
   const layoutId = getCurrentLayout();
   const values = getComposerValues();
-  if (!canSend(layoutId, values)) {
+  if (!canSend(layoutId, values) || (activeJob && !activeJob.stopped)) {
     return;
   }
 
@@ -113,13 +117,12 @@ async function handleSubmit() {
 
   const pendingMeta = replyMeta();
   const pending = appendMessage("assistant", "…", "message--pending", null, pendingMeta);
-  setBusy(true);
 
   try {
-    const { model, settings } = getModelConfig();
-    const reply = await sendChat(messages, model, settings);
-    await revealAssistantBubble(pending, reply, pendingMeta);
-    pending.parentElement.classList.remove("message--pending");
+    const reply = await requestAssistantReply(pending, pendingMeta);
+    if (reply == null) {
+      return;
+    }
     messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
     pending.parentElement.dataset.index = String(messages.length - 1);
     await persistHistory();
@@ -128,9 +131,56 @@ async function handleSubmit() {
     markError(pending);
     messages.splice(messages.length - outgoing.length, outgoing.length);
   } finally {
-    setBusy(false);
     focusInput();
     scrollToBottom();
+  }
+}
+
+/** Ask the model for a reply, or stop it from the composer square. */
+async function requestAssistantReply(pending, pendingMeta) {
+  const job = {
+    key: crypto.randomUUID(),
+    phase: "pending",
+    stopped: false,
+  };
+  activeJob = job;
+  setBusy(true);
+  try {
+    const { model, settings } = getModelConfig();
+    const reply = await sendChat(messages, model, settings, job.key);
+    if (activeJob !== job) {
+      return null;
+    }
+    if (job.stopped && job.phase === "pending") {
+      await revealAssistantBubble(pending, reply || STOPPED_REPLY, pendingMeta);
+      pending.parentElement.classList.remove("message--pending");
+      return reply || STOPPED_REPLY;
+    }
+    job.phase = "reveal";
+    await revealAssistantBubble(pending, reply, pendingMeta);
+    pending.parentElement.classList.remove("message--pending");
+    if (job.stopped) {
+      return await appendStoppedReply(pending, STOPPED_REPLY);
+    }
+    return reply;
+  } finally {
+    if (activeJob === job) {
+      activeJob = null;
+      setBusy(false);
+    }
+  }
+}
+
+/** Stop generation or typing and restore the send arrow. */
+function handleStop() {
+  if (!activeJob || activeJob.stopped) {
+    return;
+  }
+  activeJob.stopped = true;
+  stopExecution(activeJob.key);
+  setBusy(false);
+  if (activeJob.phase === "reveal") {
+    haltTextReveal();
   }
 }
 
@@ -208,6 +258,7 @@ async function refreshHistoryList() {
 
 /** Clear the current conversation and return to the empty prompt. */
 function startNewChat() {
+  activeJob = null;
   conversationId = null;
   historySaved = false;
   messages.length = 0;
@@ -227,6 +278,7 @@ async function openHistoryItem(id) {
     const saved = await getHistory(id);
     conversationId = saved.id;
     historySaved = true;
+    activeJob = null;
     messages.length = 0;
     messages.push(...saved.messages);
     renderThread(messages);
@@ -363,12 +415,11 @@ async function handleMessageMenu(action, index) {
         renderThread(messages);
         const pendingMeta = replyMeta();
         const pending = appendMessage("assistant", "…", "message--pending", null, pendingMeta);
-        setBusy(true);
         try {
-          const { model, settings } = getModelConfig();
-          const reply = await sendChat(messages, model, settings);
-          await revealAssistantBubble(pending, reply, pendingMeta);
-          pending.parentElement.classList.remove("message--pending");
+          const reply = await requestAssistantReply(pending, pendingMeta);
+          if (reply == null) {
+            return;
+          }
           messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
           pending.parentElement.dataset.index = String(messages.length - 1);
           await persistHistory(userNumber <= 2);
@@ -376,7 +427,6 @@ async function handleMessageMenu(action, index) {
           pending.textContent = error instanceof Error ? error.message : String(error);
           markError(pending);
         } finally {
-          setBusy(false);
           scrollToBottom();
         }
       },
@@ -393,6 +443,7 @@ onChooseModeChange(applyChooseMode);
 onDefaultLayoutClick(applyLayout);
 onLayoutPick(applyLayout);
 onSubmit(handleSubmit);
+onStop(handleStop);
 onNewChat(startNewChat);
 onHistorySelect(openHistoryItem);
 onHistoryMenuAction(handleHistoryMenu);
