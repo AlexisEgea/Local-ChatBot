@@ -1,5 +1,7 @@
 """Fixed test provider: no parameters, always the same reply."""
 
+import time
+
 from model.provider import Provider
 from model.test.constant import COMPANY_ID, MODEL_ID, PROVIDER_ID, REPLY
 
@@ -38,5 +40,6 @@ class TestProvider(Provider):
         settings: dict | None = None,
         max_tokens: int | None = None,
     ) -> str:
-        """Return the fixed test reply."""
+        """Return the fixed test reply after a short wait so the UI can show pending."""
+        time.sleep(10)
         return REPLY
