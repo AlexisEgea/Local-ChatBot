@@ -25,5 +25,12 @@ export async function sendChat(messages, model, settings, key) {
     throw new Error(data.detail ?? "Request failed");
   }
 
-  return data.content;
+  return {
+    content: data.content,
+    prompt_tokens: data.prompt_tokens ?? null,
+    completion_tokens: data.completion_tokens ?? null,
+    input_cost: data.input_cost ?? null,
+    output_cost: data.output_cost ?? null,
+    cost: data.cost ?? null,
+  };
 }
