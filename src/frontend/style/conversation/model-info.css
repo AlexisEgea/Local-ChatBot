@@ -27,7 +27,7 @@
   width: 100%;
   margin: 0;
   padding: 10px 12px;
-  border-radius: 18px;
+  border-radius: var(--control-radius);
   color: var(--page-fg);
   font: inherit;
   font-size: 12px;
