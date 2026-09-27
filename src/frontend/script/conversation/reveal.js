@@ -61,5 +61,12 @@ export async function revealText(element, text, onTick, paint = null) {
     await new Promise((resolve) => {
       setTimeout(resolve, DELAY_MS);
     });
+    if (token !== generation) {
+      if (finishNow) {
+        show(value);
+        onTick?.();
+      }
+      return;
+    }
   }
 }

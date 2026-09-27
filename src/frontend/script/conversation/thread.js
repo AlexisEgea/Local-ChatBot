@@ -124,6 +124,19 @@ function appendRow(role, extraClass, index, painter) {
   return bubble;
 }
 
+/** Paint three leaping dots shown while a reply is generated. */
+function paintWaitingBlob(bubble) {
+  bubble.replaceChildren();
+  bubble.classList.add("bubble--waiting");
+  const dots = document.createElement("span");
+  dots.className = "waiting-dots";
+  dots.setAttribute("aria-hidden", "true");
+  for (let index = 0; index < 3; index += 1) {
+    dots.appendChild(document.createElement("span"));
+  }
+  bubble.appendChild(dots);
+}
+
 /** Fill a bubble from a stored message: structured fields, or plain text. */
 export function fillBubble(bubble, role, content, message = null) {
   bubble.replaceChildren();
@@ -159,11 +172,14 @@ export function fillBubble(bubble, role, content, message = null) {
 
 /** Paint an assistant bubble and reveal its reply letter by letter. */
 export async function revealAssistantBubble(bubble, content, message = null) {
+  bubble.parentElement?.classList.remove("message--pending");
+  bubble.classList.remove("bubble--waiting");
   bubble.replaceChildren();
   bubble.classList.remove("bubble--fields");
   const title = message?.source || getReplySource();
   paintReadFields(bubble, [{ name: "assistant", title }], { assistant: "\u00a0" });
   const field = bubble.querySelector(".bubble-field-text");
+  const row = bubble.parentElement;
   const onSkip = (event) => {
     if (event.button !== 0 || event.target.closest(".code-block-copy")) {
       return;
@@ -171,11 +187,11 @@ export async function revealAssistantBubble(bubble, content, message = null) {
     event.preventDefault();
     skipTextReveal();
   };
-  bubble.addEventListener("click", onSkip);
+  row?.addEventListener("pointerdown", onSkip, true);
   try {
     await revealText(field, content, scrollToBottom, paintMarkdown);
   } finally {
-    bubble.removeEventListener("click", onSkip);
+    row?.removeEventListener("pointerdown", onSkip, true);
   }
 }
 
@@ -199,11 +215,19 @@ export function appendMessage(role, content, extraClass = "", index = null, mess
       }
     }
   }
-  return appendRow(role, extraClass, index, (bubble) => fillBubble(bubble, role, content, message));
+  return appendRow(role, extraClass, index, (bubble) => {
+    if (extraClass.includes("message--pending")) {
+      paintWaitingBlob(bubble);
+      return;
+    }
+    fillBubble(bubble, role, content, message);
+  });
 }
 
 /** Style a bubble as a failed request. */
 export function markError(bubble) {
+  bubble.parentElement.classList.remove("message--pending");
+  bubble.classList.remove("bubble--waiting");
   bubble.parentElement.classList.add("message--error");
 }
 
