@@ -203,9 +203,10 @@ export async function appendStoppedReply(bubble, notice) {
     return notice;
   }
   const kept = getRevealedText();
-  await revealFrom(field, kept, notice, scrollToBottom, (element, slice) => {
+  const prefix = kept ? `${kept}\n\n` : "";
+  await revealFrom(field, prefix, notice, scrollToBottom, (element, slice) => {
     paintMarkdown(element, slice);
-    if (slice.length <= kept.length) {
+    if (slice.length <= prefix.length) {
       return;
     }
     const last = element.lastElementChild;
@@ -213,7 +214,7 @@ export async function appendStoppedReply(bubble, notice) {
       last.style.marginTop = "1.5em";
     }
   });
-  return `${kept}${notice}`;
+  return `${prefix}${notice}`;
 }
 
 /** Append chat bubbles: one per field, or a single assistant / Default bubble. */
