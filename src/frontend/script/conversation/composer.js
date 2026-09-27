@@ -9,8 +9,14 @@ const fieldsRoot = document.getElementById("composer-fields");
 const sendButton = document.getElementById("chat-send");
 const picker = document.getElementById("composer-picker");
 
+const SEND_ICON =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>';
+const STOP_ICON =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor" /></svg>';
+
 let currentLayout = DEFAULT_LAYOUT;
 let pickerMode = false;
+let stopHandler = null;
 
 /** Show the field title only while the textarea has content. */
 function syncFieldLabel(wrap, textarea) {
@@ -140,9 +146,12 @@ export function clearInput() {
   }
 }
 
-/** Disable or enable the send button and all composer fields. */
+/** Switch the send control to a stop square while a reply is in flight. */
 export function setBusy(isBusy) {
-  sendButton.disabled = isBusy;
+  sendButton.disabled = false;
+  sendButton.classList.toggle("is-stop", isBusy);
+  sendButton.setAttribute("aria-label", isBusy ? "Stop" : "Send");
+  sendButton.innerHTML = isBusy ? STOP_ICON : SEND_ICON;
   for (const field of fieldsRoot.querySelectorAll("textarea")) {
     field.disabled = isBusy;
   }
@@ -158,8 +167,17 @@ export function focusInput() {
 export function onSubmit(handler) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (sendButton.classList.contains("is-stop")) {
+      stopHandler?.();
+      return;
+    }
     handler();
   });
+}
+
+/** Bind the stop square shown while a reply is generated or typed. */
+export function onStop(handler) {
+  stopHandler = handler;
 }
 
 /** Enable or disable "click the glass panel to choose a layout". */
