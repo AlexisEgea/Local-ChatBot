@@ -152,9 +152,9 @@ async function requestAssistantReply(pending, pendingMeta) {
       return null;
     }
     if (job.stopped && job.phase === "pending") {
-      await revealAssistantBubble(pending, reply || STOPPED_REPLY, pendingMeta);
+      await revealAssistantBubble(pending, STOPPED_REPLY, pendingMeta);
       pending.parentElement.classList.remove("message--pending");
-      return reply || STOPPED_REPLY;
+      return STOPPED_REPLY;
     }
     job.phase = "reveal";
     await revealAssistantBubble(pending, reply, pendingMeta);
