@@ -2,10 +2,12 @@
 
 .history-new-chat,
 .history-item {
+  box-sizing: border-box;
   width: 100%;
+  min-height: 44px;
   margin: 0 0 16px;
   padding: 10px 12px;
-  border-radius: 18px;
+  border-radius: var(--control-radius);
   color: inherit;
   font: inherit;
   font-size: 12px;
