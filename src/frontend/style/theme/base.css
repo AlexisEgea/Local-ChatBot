@@ -22,6 +22,8 @@
   --blob-4: rgba(255, 170, 40, 0.2);
   --choice-bg: rgba(255, 255, 255, 0.28);
   --choice-border: rgba(255, 255, 255, 0.45);
+  --control-radius: 16px;
+  --bar-min-height: 48px;
 }
 
 html[data-theme="dark"] {
