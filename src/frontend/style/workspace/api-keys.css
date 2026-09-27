@@ -1,0 +1,172 @@
+/* Centered API key dialog opened from the Local ChatBot header. */
+
+.api-key-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(12, 14, 20, 0.35);
+}
+
+.api-key-overlay[hidden] {
+  display: none;
+}
+
+.api-key-dialog {
+  --api-key-radius: var(--control-radius);
+  width: min(520px, 100%);
+  padding: 22px 22px 18px;
+  border-radius: 24px;
+}
+
+.api-key-dialog h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.api-key-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.api-key-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.api-key-label {
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--page-muted);
+}
+
+.api-key-line {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.api-key-control {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 12px;
+  border-radius: var(--api-key-radius);
+}
+
+.api-key-control input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.api-key-eye {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.api-key-eye svg {
+  width: 18px;
+  height: 18px;
+}
+
+.api-key-test {
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--api-key-radius);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.api-key-test:disabled,
+.api-key-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.api-key-status {
+  margin: 0 4px;
+  font-size: 13px;
+}
+
+.api-key-status.is-ok {
+  color: #2f9e5c;
+}
+
+html[data-theme="dark"] .api-key-status.is-ok {
+  color: #6ee7a0;
+}
+
+.api-key-status.is-bad {
+  color: #c04545;
+}
+
+html[data-theme="dark"] .api-key-status.is-bad {
+  color: #ff8b8b;
+}
+
+.api-key-status[hidden] {
+  display: none;
+}
+
+.api-key-error {
+  margin: 12px 4px 0;
+  font-size: 13px;
+  color: #c04545;
+}
+
+html[data-theme="dark"] .api-key-error {
+  color: #ff8b8b;
+}
+
+.api-key-error[hidden] {
+  display: none;
+}
+
+.api-key-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.api-key-actions button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--api-key-radius);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}

@@ -2,10 +2,12 @@
 
 .history-new-chat,
 .history-item {
+  box-sizing: border-box;
   width: 100%;
+  min-height: 44px;
   margin: 0 0 16px;
   padding: 10px 12px;
-  border-radius: 18px;
+  border-radius: var(--control-radius);
   color: inherit;
   font: inherit;
   font-size: 12px;
@@ -43,6 +45,7 @@
 }
 
 .history-menu,
+.header-menu,
 .model-menu,
 .message-menu {
   position: fixed;
@@ -60,12 +63,14 @@
 }
 
 .history-menu[hidden],
+.header-menu[hidden],
 .model-menu[hidden],
 .message-menu[hidden] {
   display: none;
 }
 
 .history-menu button,
+.header-menu button,
 .model-menu button,
 .message-menu button {
   padding: 6px 10px;
@@ -81,6 +86,7 @@
 }
 
 .history-menu button:hover,
+.header-menu button:hover,
 .model-menu button:hover,
 .model-menu button.is-active,
 .message-menu button:hover {

@@ -28,7 +28,7 @@ export function resizeField(textarea) {
   textarea.style.flex = "none";
   textarea.style.height = "auto";
   textarea.style.overflow = "hidden";
-  textarea.style.height = `${Math.max(textarea.scrollHeight, 28)}px`;
+  textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
 }
 
 /** Resize every textarea in a layout container. */

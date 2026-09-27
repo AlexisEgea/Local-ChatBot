@@ -24,6 +24,7 @@ import { getModelConfig, getModelSnapshot, getReplySource, initModelOptions } fr
 import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
 import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
 import { initTheme } from "./workspace/sidebar/theme.js";
+import { initApiKeys } from "./workspace/api-keys.js";
 import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
 import { haltTextReveal } from "./conversation/reveal.js";
 import { appendMessage, appendStoppedReply, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, revealAssistantBubble, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
@@ -452,5 +453,6 @@ onMessageMenuAction(handleMessageMenu);
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
 initTheme();
+initApiKeys();
 initModelOptions();
 refreshHistoryList();

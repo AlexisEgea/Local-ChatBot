@@ -25,10 +25,12 @@
 }
 
 .model-select {
+  box-sizing: border-box;
   width: 100%;
+  min-height: 44px;
   margin: 0;
   padding: 10px 28px 10px 12px;
-  border-radius: 18px;
+  border-radius: var(--control-radius);
   color: var(--page-fg);
   font: inherit;
   font-size: 12px;
@@ -131,24 +133,30 @@
   font-size: 12px;
 }
 
+.model-param .model-select {
+  min-height: 30px;
+  padding: 6px 28px 6px 12px;
+}
+
 .model-stepper {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
   align-items: stretch;
   width: 100%;
   min-height: 30px;
-  border-radius: 18px;
+  overflow: hidden;
+  border-radius: var(--control-radius);
 }
 
 .model-stepper-btn {
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 18px;
+  border-radius: 0;
   background: transparent;
   color: var(--page-fg);
   font: inherit;
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1;
   cursor: pointer;
 }

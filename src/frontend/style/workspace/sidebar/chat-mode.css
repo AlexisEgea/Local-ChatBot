@@ -10,13 +10,15 @@
 }
 
 .sidebar-layout {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 2px;
   width: 100%;
+  min-height: 44px;
   margin-bottom: 8px;
   padding: 10px 12px;
-  border-radius: 18px;
+  border-radius: var(--control-radius);
   color: inherit;
   font: inherit;
   font-size: 12px;
