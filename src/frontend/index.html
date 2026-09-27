@@ -159,6 +159,19 @@
       <button type="button" data-action="rename">Rename</button>
       <button type="button" data-action="delete">Delete</button>
     </div>
+    <div id="header-menu" class="header-menu glass" hidden>
+      <button type="button" data-action="api-keys">API key</button>
+    </div>
+    <div id="api-key-overlay" class="api-key-overlay" hidden>
+      <div class="api-key-dialog glass" role="dialog" aria-modal="true" aria-labelledby="api-key-title">
+        <h2 id="api-key-title">API keys</h2>
+        <div id="api-key-fields" class="api-key-fields"></div>
+        <p id="api-key-error" class="api-key-error" hidden></p>
+        <div class="api-key-actions">
+          <button type="button" id="api-key-save" class="glass">Validate</button>
+        </div>
+      </div>
+    </div>
     <div id="model-menu" class="model-menu glass" hidden></div>
     <div id="message-menu" class="message-menu glass" hidden></div>
     <script type="module" src="./script/main.js"></script>
