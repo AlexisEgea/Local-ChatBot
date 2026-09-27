@@ -5,7 +5,7 @@
 
 const API_BASE_URL = window.location.origin;
 
-export const STOPPED_REPLY = "Generation was stopped by the user.";
+export const STOPPED_REPLY = "\n\nGeneration was stopped by the user.";
 
 /** Send the full conversation and return the assistant reply. */
 export async function sendChat(messages, model, settings, key) {
