@@ -7,8 +7,8 @@ from pathlib import Path
 import sys
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
 
+from communication.utils.dataclass.chat import ChatRequest, ChatResponse
 from communication.ws_management.ws_manager import start_execution
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
@@ -29,33 +29,6 @@ def _silence_task(task: asyncio.Task) -> None:
 
 class GenerationStopped(Exception):
     """Raised when the user stops an in-flight reply."""
-
-
-class ChatMessage(BaseModel):
-    """One turn in the conversation sent by the frontend."""
-
-    role: str = Field(..., min_length=1)
-    content: str = Field(..., min_length=1)
-
-
-class ChatRequest(BaseModel):
-    """Full history required to generate the next assistant reply."""
-
-    messages: list[ChatMessage] = Field(..., min_length=1)
-    model: str | None = None
-    settings: dict[str, float | int | str] | None = None
-    key: str | None = None
-
-
-class ChatResponse(BaseModel):
-    """Assistant text returned to the UI, with optional paid-token cost."""
-
-    content: str
-    prompt_tokens: int | None = None
-    completion_tokens: int | None = None
-    input_cost: float | None = None
-    output_cost: float | None = None
-    cost: float | None = None
 
 
 async def _complete_or_stop(payload: ChatRequest) -> str:

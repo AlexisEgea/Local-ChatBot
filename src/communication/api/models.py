@@ -6,7 +6,8 @@ from pathlib import Path
 import sys
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+
+from communication.utils.dataclass.models import LocalFolderBody
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
@@ -18,12 +19,6 @@ from model.openai.pricing import lookup_standard_pricing
 from model.parameter import list_model_parameters
 
 router = APIRouter()
-
-
-class LocalFolderBody(BaseModel):
-    """Folder name chosen in the browser directory picker."""
-
-    folder: str = Field(..., min_length=1)
 
 
 @router.get("/api/models")

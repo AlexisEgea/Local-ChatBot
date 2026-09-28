@@ -6,7 +6,8 @@ from pathlib import Path
 import sys
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+
+from communication.utils.dataclass.keys import ApiKeyListBody, ApiKeyValue
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
@@ -16,19 +17,6 @@ from api_key.check import test_api_key
 from api_key.store import list_api_keys, save_api_keys
 
 router = APIRouter()
-
-
-class ApiKeyValue(BaseModel):
-    """One key edited in the popup."""
-
-    id: str = Field(..., min_length=1)
-    value: str = ""
-
-
-class ApiKeyListBody(BaseModel):
-    """Keys submitted for a save."""
-
-    keys: list[ApiKeyValue] = Field(..., min_length=1)
 
 
 def _test_one(item: ApiKeyValue) -> bool:
