@@ -9,6 +9,7 @@ API_BASE_URL = "https://api.openai.com/v1"
 CACHE_TTL_SECONDS = 300
 PRICING_CACHE_TTL_SECONDS = 3600
 PRICING_URL = "https://developers.openai.com/api/docs/pricing.md"
+MODEL_DOC_URL = "https://developers.openai.com/api/docs/models/{model}.md"
 DEFAULT_CONTEXT_LENGTH = 128000
 
 CREATE_KEYS = {
@@ -20,5 +21,3 @@ CREATE_KEYS = {
     "presence_penalty",
     "reasoning_effort",
 }
-
-REASONING_PREFIXES = ("o1", "o3", "o4", "gpt-5")
