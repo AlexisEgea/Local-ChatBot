@@ -15,6 +15,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
+from model.openai.pricing import estimate_cost
 from model.registry import get_resolved_provider
 
 router = APIRouter()
@@ -47,9 +48,14 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Assistant text returned to the UI."""
+    """Assistant text returned to the UI, with optional paid-token cost."""
 
     content: str
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    input_cost: float | None = None
+    output_cost: float | None = None
+    cost: float | None = None
 
 
 async def _complete_or_stop(payload: ChatRequest) -> str:
@@ -100,4 +106,18 @@ async def create_chat(payload: ChatRequest) -> ChatResponse:
         traceback.print_exc()
         raise HTTPException(status_code=502, detail=str(error)) from error
 
-    return ChatResponse(content=content)
+    provider, model_id = get_resolved_provider(payload.model)
+    usage = getattr(provider, "last_usage", None) or {}
+    prompt_tokens = usage.get("prompt_tokens")
+    completion_tokens = usage.get("completion_tokens")
+    breakdown = None
+    if prompt_tokens is not None and completion_tokens is not None:
+        breakdown = estimate_cost(model_id, prompt_tokens, completion_tokens)
+    return ChatResponse(
+        content=content,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        input_cost=None if breakdown is None else breakdown["input"],
+        output_cost=None if breakdown is None else breakdown["output"],
+        cost=None if breakdown is None else breakdown["total"],
+    )

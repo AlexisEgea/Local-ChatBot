@@ -75,6 +75,15 @@
   color: var(--page-muted);
 }
 
+.sidebar-section--pricing .model-info-value {
+  min-height: 30px;
+  padding: 6px 12px;
+}
+
+.sidebar-section--pricing[hidden] {
+  display: none;
+}
+
 .local-folder-input {
   position: absolute;
   width: 0;

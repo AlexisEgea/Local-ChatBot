@@ -22,6 +22,16 @@ export async function getModelParameters(model) {
   return data.parameters;
 }
 
+/** Load standard input and output USD rates per 1M tokens. */
+export async function getModelPricing(model) {
+  const response = await fetch(`${API_BASE_URL}/api/models/pricing?model=${encodeURIComponent(model)}`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail ?? "Could not load model pricing");
+  }
+  return data;
+}
+
 /** Register a folder chosen in the browser directory picker. */
 export async function addLocalModel(folder) {
   const response = await fetch(`${API_BASE_URL}/api/models/local`, {

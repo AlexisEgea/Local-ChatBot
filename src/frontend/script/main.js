@@ -148,9 +148,23 @@ async function requestAssistantReply(pending, pendingMeta) {
   setBusy(true);
   try {
     const { model, settings } = getModelConfig();
-    const reply = await sendChat(messages, model, settings, job.key);
+    const data = await sendChat(messages, model, settings, job.key);
     if (activeJob !== job) {
       return null;
+    }
+    const reply = data.content;
+    if (
+      pendingMeta.model_info &&
+      (data.cost != null || data.prompt_tokens != null || data.completion_tokens != null)
+    ) {
+      pendingMeta.model_info = {
+        ...pendingMeta.model_info,
+        cost: data.cost,
+        input_cost: data.input_cost,
+        output_cost: data.output_cost,
+        prompt_tokens: data.prompt_tokens,
+        completion_tokens: data.completion_tokens,
+      };
     }
     if (job.stopped && job.phase === "pending") {
       await revealAssistantBubble(pending, STOPPED_REPLY, pendingMeta);

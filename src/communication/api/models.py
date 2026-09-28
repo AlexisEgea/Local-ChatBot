@@ -14,6 +14,7 @@ if str(BACKEND_DIR) not in sys.path:
 
 from model.catalog import list_model_options
 from model.local.store import register_picked_folder
+from model.openai.pricing import lookup_standard_pricing
 from model.parameter import list_model_parameters
 
 router = APIRouter()
@@ -46,6 +47,23 @@ async def get_model_parameters(model: str = Query(..., min_length=1)) -> dict:
         traceback.print_exc()
         raise HTTPException(status_code=502, detail=str(error)) from error
     return {"model": model, "parameters": parameters}
+
+
+@router.get("/api/models/pricing")
+async def get_model_pricing(model: str = Query(..., min_length=1)) -> dict:
+    """Return standard input and output USD rates per 1M tokens for one model."""
+    try:
+        rates = await asyncio.to_thread(lookup_standard_pricing, model)
+    except Exception as error:
+        traceback.print_exc()
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    if not rates:
+        return {
+            "model": model,
+            "input_per_million": None,
+            "output_per_million": None,
+        }
+    return {"model": model, **rates}
 
 
 @router.post("/api/models/local")
