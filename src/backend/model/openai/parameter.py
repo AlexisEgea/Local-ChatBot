@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 
-from model.openai.constant import DEFAULT_CONTEXT_LENGTH, REASONING_PREFIXES
-
-
-def supports_reasoning(model_id: str) -> bool:
-    """Return True for o-series and gpt-5 models that use reasoning_effort."""
-    lowered = (model_id or "").strip().lower()
-    return lowered.startswith(REASONING_PREFIXES)
+from model.openai.constant import DEFAULT_CONTEXT_LENGTH
+from model.openai.reasoning import supports_reasoning
 
 
 def openai_chat_parameters(model_id: str, context_length: int | None) -> list[dict]:
