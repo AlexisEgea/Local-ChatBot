@@ -5,33 +5,42 @@
 
 import { sendChat, STOPPED_REPLY } from "./api/chat.js";
 import { stopExecution } from "./api/execution.js";
-import { addHistoryMessage, createHistory, deleteHistory, deleteHistoryMessage, getHistory, listHistory, renameHistory, updateHistoryMessage } from "./api/history.js";
+import { deleteHistory, deleteHistoryMessage, getHistory, updateHistoryMessage } from "./api/history.js";
 import {
   clearInput,
   focusInput,
   getComposerValues,
   getCurrentLayout,
-  onLayoutPick,
-  onStop,
-  onSubmit,
   renderFields,
-  setBusy,
-  setPickerMode,
-} from "./conversation/composer.js";
-import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, exchangeRange, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/layouts.js";
-import { onToggle, setExpanded } from "./workspace/sidebar/model.js";
-import { getModelConfig, getModelSnapshot, getReplySource, initModelOptions } from "./workspace/sidebar/model-options.js";
-import { onSidePanelToggle, setSidePanelOpen } from "./workspace/sidebar/rails.js";
-import { onChooseModeChange, onDefaultLayoutClick, setActiveLayoutButton, setChooseMode, getChooseMode } from "./workspace/sidebar/chat-mode.js";
-import { initTheme } from "./workspace/sidebar/theme.js";
-import { initApiKeys } from "./workspace/api-keys.js";
-import { onHistoryMenuAction, onHistorySelect, onNewChat, renderHistoryList } from "./workspace/sidebar/history.js";
-import { haltTextReveal } from "./conversation/reveal.js";
-import { appendMessage, appendStoppedReply, applyEditingLayout, beginMessageEdit, clearThread, isMessageEditing, markError, onMessageMenuAction, renderThread, revealAssistantBubble, scrollToBottom, setEditingPickerMode, showModelInfo } from "./conversation/thread.js";
+} from "./conversation/chat/chat-mode/bar-mode.js";
+import { onModeChoice, setModeChoiceEnabled } from "./conversation/chat/chat-mode/mode-choice.js";
+import { onStop, onSubmit, setBusy } from "./conversation/run-execution.js";
+import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/chat/chat-mode/layouts.js";
+import { buildOutgoingMessages, canSend, displayText } from "./conversation/chat/chat-mode/payload.js";
+import { onToggle, setExpanded } from "./workspace-sidebar/header/expand.js";
+import { initHeaderSidebar } from "./workspace-sidebar/header/sidebar.js";
+import { getModelConfig, getModelSnapshot, getReplySource, initModelOptions } from "./workspace-sidebar/header/model/snapshot.js";
+import { bindRail } from "./workspace-sidebar/rail-sidebar/rail.js";
+import { onChooseModeChange, setChooseMode, getChooseMode } from "./workspace-sidebar/rail-sidebar/design-option/choose.js";
+import { onDefaultLayoutClick, setActiveLayoutButton } from "./workspace-sidebar/rail-sidebar/design-option/layout.js";
+import { initTheme } from "./workspace-sidebar/rail-sidebar/design-option/theme/theme.js";
+import { initApiKeys } from "./workspace-sidebar/header/api-key-overlay/overlay.js";
+import { onHistoryMenuAction } from "./workspace-sidebar/rail-sidebar/history/context-menu/open.js";
+import { deleteHistoryChat } from "./workspace-sidebar/rail-sidebar/history/context-menu/delete.js";
+import { renameHistoryChat } from "./workspace-sidebar/rail-sidebar/history/context-menu/rename.js";
+import { conversationPersist, persistHistory, refreshHistoryList, rememberConversationStart } from "./workspace-sidebar/rail-sidebar/history/conversation-persist.js";
+import { onHistorySelect } from "./workspace-sidebar/rail-sidebar/history/list.js";
+import { onNewChat } from "./workspace-sidebar/rail-sidebar/history/new-chat.js";
+import { haltTextReveal } from "./conversation/animation/typewriter-reveal-animation.js";
+import { appendMessage, clearThread, markError, renderThread, scrollToBottom } from "./conversation/message/message-list.js";
+import { appendStoppedReply, revealAssistantBubble } from "./conversation/message/message-bubble.js";
+import { onMessageMenuAction } from "./conversation/context-menu/open.js";
+import { copyMessage } from "./conversation/context-menu/copy.js";
+import { applyEditingLayout, beginMessageEdit, isMessageEditing, setEditingPickerMode } from "./conversation/context-menu/user/edit.js";
+import { takeUserExchange } from "./conversation/context-menu/user/delete.js";
+import { showModelInfo } from "./conversation/context-menu/system/information.js";
 
 const messages = [];
-let conversationId = null;
-let historySaved = false;
 let activeJob = null;
 
 /** Apply a conversation layout: the edited bubble while editing, otherwise the composer. */
@@ -51,49 +60,7 @@ function applyChooseMode(mode) {
     setEditingPickerMode();
     return;
   }
-  setPickerMode(mode === "picker");
-}
-
-/** Turn composer fields into OpenAI-style chat messages. */
-function buildOutgoingMessages(layoutId, values) {
-  if (layoutId === "system-user") {
-    const outgoing = [];
-    if (values.system) {
-      outgoing.push({ role: "system", content: values.system });
-    }
-    outgoing.push({ role: "user", content: values.user });
-    return outgoing;
-  }
-
-  if (layoutId === "cgse") {
-    const content = [
-      values.context && `Context: ${values.context}`,
-      values.goal && `Goal: ${values.goal}`,
-      values.source && `Source: ${values.source}`,
-      values.expectation && `Expectation: ${values.expectation}`,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
-    return [{ role: "user", content }];
-  }
-
-  return [{ role: "user", content: values.user }];
-}
-
-/** Build the user-visible bubble text for the current layout. */
-function displayText(layoutId, values) {
-  if (layoutId === "cgse") {
-    return buildOutgoingMessages(layoutId, values)[0].content;
-  }
-  return values.user;
-}
-
-/** Return whether the composer has enough content to send. */
-function canSend(layoutId, values) {
-  if (layoutId === "cgse") {
-    return Boolean(values.context || values.goal || values.source || values.expectation);
-  }
-  return Boolean(values.user);
+  setModeChoiceEnabled(mode === "picker");
 }
 
 /** Send the current draft to the API and render the assistant reply. */
@@ -126,7 +93,7 @@ async function handleSubmit() {
     }
     messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
     pending.parentElement.dataset.index = String(messages.length - 1);
-    await persistHistory();
+    await persistHistory(messages);
   } catch (error) {
     pending.textContent = error instanceof Error ? error.message : String(error);
     markError(pending);
@@ -199,83 +166,16 @@ function handleStop() {
   }
 }
 
-/** Build a local timestamp used as the history file id. */
-function newConversationId() {
-  const now = new Date();
-  const pad = (value) => String(value).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-}
-
-/** Keep the start-time id from the first user message. */
-function rememberConversationStart() {
-  if (!conversationId) {
-    conversationId = newConversationId();
-  }
-}
-
 /** Build the assistant metadata stored with a reply. */
 function replyMeta() {
   return { role: "assistant", source: getReplySource(), model_info: getModelSnapshot() };
 }
 
-/** Count completed user/assistant rounds in the current thread. */
-function exchangeCount() {
-  return messages.filter((message) => message.role === "assistant").length;
-}
-
-/** Copy backend message ids onto the matching local turns. */
-function applyServerIds(local, remote) {
-  for (let index = 0; index < local.length; index += 1) {
-    const id = remote[index]?.id;
-    if (id) {
-      local[index].id = id;
-    }
-  }
-}
-
-/** Save after the first exchange; append only new messages afterwards. */
-async function persistHistory(refineTitle = null) {
-  const exchanges = exchangeCount();
-  if (exchanges < 1) {
-    return;
-  }
-
-  try {
-    if (!historySaved) {
-      const saved = await createHistory(messages, conversationId);
-      conversationId = saved.id;
-      historySaved = true;
-      applyServerIds(messages, saved.messages || []);
-      await refreshHistoryList();
-      return;
-    }
-    const pending = messages.filter((message) => !message.id);
-    for (let index = 0; index < pending.length; index += 1) {
-      const shouldRefine = Boolean(refineTitle ?? exchanges === 2) && index === pending.length - 1;
-      const saved = await addHistoryMessage(conversationId, pending[index], shouldRefine);
-      pending[index].id = saved.message.id;
-    }
-    await refreshHistoryList();
-  } catch (error) {
-    console.error("Could not save conversation", error);
-  }
-}
-
-/** Reload History panel titles from the backend. */
-async function refreshHistoryList() {
-  try {
-    const items = await listHistory();
-    renderHistoryList(items, historySaved ? conversationId : null);
-  } catch (error) {
-    console.error("Could not load history", error);
-  }
-}
-
 /** Clear the current conversation and return to the empty prompt. */
 function startNewChat() {
   activeJob = null;
-  conversationId = null;
-  historySaved = false;
+  conversationPersist.id = null;
+  conversationPersist.saved = false;
   messages.length = 0;
   clearThread();
   clearInput();
@@ -286,13 +186,13 @@ function startNewChat() {
 
 /** Open a saved conversation from the History panel. */
 async function openHistoryItem(id) {
-  if (id === conversationId && historySaved) {
+  if (id === conversationPersist.id && conversationPersist.saved) {
     return;
   }
   try {
     const saved = await getHistory(id);
-    conversationId = saved.id;
-    historySaved = true;
+    conversationPersist.id = saved.id;
+    conversationPersist.saved = true;
     activeJob = null;
     messages.length = 0;
     messages.push(...saved.messages);
@@ -310,7 +210,7 @@ async function openHistoryItem(id) {
 async function handleHistoryMenu(action, id, currentTitle) {
   if (action === "rename") {
     try {
-      await renameHistory(id, currentTitle);
+      await renameHistoryChat(id, currentTitle);
       await refreshHistoryList();
     } catch (error) {
       console.error("Could not rename conversation", error);
@@ -321,8 +221,8 @@ async function handleHistoryMenu(action, id, currentTitle) {
 
   if (action === "delete") {
     try {
-      await deleteHistory(id);
-      if (id === conversationId) {
+      const closedActive = await deleteHistoryChat(id, conversationPersist.id);
+      if (closedActive) {
         startNewChat();
         return;
       }
@@ -341,7 +241,7 @@ async function handleMessageMenu(action, index) {
   }
   if (action === "copy") {
     try {
-      await navigator.clipboard.writeText(message.content);
+      await copyMessage(message.content);
     } catch (error) {
       console.error("Could not copy message", error);
     }
@@ -352,16 +252,14 @@ async function handleMessageMenu(action, index) {
     return;
   }
   if (action === "delete") {
-    if (message.role !== "user") {
+    const removed = takeUserExchange(messages, index);
+    if (!removed) {
       return;
     }
-    const { start, end } = exchangeRange(messages, index);
-    const removed = messages.slice(start, end + 1);
-    messages.splice(start, end - start + 1);
     if (messages.length === 0) {
-      if (historySaved && conversationId) {
+      if (conversationPersist.saved && conversationPersist.id) {
         try {
-          await deleteHistory(conversationId);
+          await deleteHistory(conversationPersist.id);
         } catch (error) {
           console.error("Could not delete conversation", error);
         }
@@ -370,13 +268,13 @@ async function handleMessageMenu(action, index) {
       return;
     }
     renderThread(messages);
-    if (historySaved) {
+    if (conversationPersist.saved) {
       try {
         for (const entry of removed) {
           if (!entry.id) {
             continue;
           }
-          await deleteHistoryMessage(conversationId, entry.id);
+          await deleteHistoryMessage(conversationPersist.id, entry.id);
         }
         await refreshHistoryList();
       } catch (error) {
@@ -412,18 +310,18 @@ async function handleMessageMenu(action, index) {
           }
           return entry;
         });
-        if (historySaved) {
+        if (conversationPersist.saved) {
           for (const entry of nextMessages) {
             if (!entry.id) {
               continue;
             }
-            await updateHistoryMessage(conversationId, entry.id, entry);
+            await updateHistoryMessage(conversationPersist.id, entry.id, entry);
           }
           for (const entry of removed) {
             if (!entry.id || reused.has(entry.id)) {
               continue;
             }
-            await deleteHistoryMessage(conversationId, entry.id);
+            await deleteHistoryMessage(conversationPersist.id, entry.id);
           }
         }
         messages.push(...nextMessages);
@@ -437,7 +335,7 @@ async function handleMessageMenu(action, index) {
           }
           messages.push({ role: "assistant", content: reply, source: pendingMeta.source, model_info: pendingMeta.model_info });
           pending.parentElement.dataset.index = String(messages.length - 1);
-          await persistHistory(userNumber <= 2);
+          await persistHistory(messages, userNumber <= 2);
         } catch (error) {
           pending.textContent = error instanceof Error ? error.message : String(error);
           markError(pending);
@@ -450,13 +348,13 @@ async function handleMessageMenu(action, index) {
 }
 
 onToggle(() => setExpanded(!document.getElementById("app").classList.contains("is-expanded")));
-onSidePanelToggle((side) => {
-  const panel = document.getElementById(side === "left" ? "sidebar-outer-left" : "sidebar-outer-right");
-  setSidePanelOpen(side, !panel.classList.contains("is-open"));
-});
+const historyRail = bindRail(document.getElementById("sidebar-outer-left"));
+const chatModeRail = bindRail(document.getElementById("sidebar-outer-right"));
+historyRail.onToggle(() => historyRail.setOpen(!historyRail.isOpen()));
+chatModeRail.onToggle(() => chatModeRail.setOpen(!chatModeRail.isOpen()));
 onChooseModeChange(applyChooseMode);
 onDefaultLayoutClick(applyLayout);
-onLayoutPick(applyLayout);
+onModeChoice(applyLayout);
 onSubmit(handleSubmit);
 onStop(handleStop);
 onNewChat(startNewChat);
@@ -467,6 +365,7 @@ onMessageMenuAction(handleMessageMenu);
 applyChooseMode(DEFAULT_CHOOSE_MODE);
 applyLayout(DEFAULT_LAYOUT);
 initTheme();
+initHeaderSidebar();
 initApiKeys();
 initModelOptions();
 refreshHistoryList();
