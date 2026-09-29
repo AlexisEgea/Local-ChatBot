@@ -7,7 +7,7 @@ import sys
 
 from fastapi import APIRouter, HTTPException
 
-from communication.utils.dataclass.keys import ApiKeyListBody, ApiKeyValue
+from communication.utils.dataclass.key import ApiKeyListBody, ApiKeyValue
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:

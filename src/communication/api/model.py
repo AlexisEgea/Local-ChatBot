@@ -7,7 +7,7 @@ import sys
 
 from fastapi import APIRouter, HTTPException, Query
 
-from communication.utils.dataclass.models import LocalFolderBody
+from communication.utils.dataclass.model import LocalFolderBody
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:

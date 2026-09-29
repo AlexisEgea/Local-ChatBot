@@ -15,8 +15,8 @@ if str(BACKEND_DIR) not in sys.path:
 from communication.api.chat import router as chat_router
 from communication.api.execution import router as execution_router
 from communication.api.history import router as history_router
-from communication.api.keys import router as keys_router
-from communication.api.models import router as models_router
+from communication.api.key import router as keys_router
+from communication.api.model import router as models_router
 from communication.api.websocket import lifespan, router as websocket_router
 
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
