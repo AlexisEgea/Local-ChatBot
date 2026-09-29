@@ -1,0 +1,221 @@
+/* Model panel shown after Local ChatBot expands the workspace. */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.app.is-expanded .sidebar {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+}
+
+.model-choice {
+  position: relative;
+  color: var(--page-fg);
+}
+
+.model-choice select {
+  display: none;
+}
+
+.model-select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 28px 10px 12px;
+  border-radius: var(--control-radius);
+  color: var(--page-fg);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-choice::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  border: 4px solid transparent;
+  border-top-color: currentColor;
+  transform: translateY(-25%);
+  opacity: 0.7;
+}
+
+.model-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--page-muted);
+}
+
+.model-field[hidden],
+.model-section--local #model-company-field {
+  display: none;
+}
+
+.model-description {
+  margin: 0;
+  font-size: 12px;
+  color: var(--page-muted);
+}
+
+.sidebar-section--pricing .model-info-value {
+  min-height: 30px;
+  padding: 6px 12px;
+}
+
+.sidebar-section--pricing[hidden] {
+  display: none;
+}
+
+.local-folder-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.model-params {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sidebar-section--params {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-section--params[hidden] {
+  display: none;
+}
+
+.sidebar-section--params h2 {
+  flex: 0 0 auto;
+}
+
+.model-param {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+}
+
+.model-param--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.model-param-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--page-muted);
+  font-size: 12px;
+}
+
+.model-param .model-select {
+  min-height: 30px;
+  padding: 6px 28px 6px 12px;
+}
+
+.model-stepper {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  align-items: stretch;
+  width: 100%;
+  min-height: 30px;
+  overflow: hidden;
+  border-radius: var(--control-radius);
+}
+
+.model-stepper-btn {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--page-fg);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.model-stepper-btn:hover,
+.model-stepper input:focus {
+  background: var(--glass-from);
+}
+
+.model-stepper input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 6px;
+  border: 0;
+  border-left: 1px solid var(--choice-border);
+  border-right: 1px solid var(--choice-border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  outline: none;
+}
+
+.model-param--toggle input[type="checkbox"] {
+  appearance: none;
+  width: 34px;
+  height: 18px;
+  margin: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+}
+
+.model-param--toggle input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--page-fg);
+  opacity: 0.45;
+}
+
+.model-param--toggle input[type="checkbox"]:checked {
+  background: var(--glass-from);
+}
+
+.model-param--toggle input[type="checkbox"]:checked::after {
+  left: 18px;
+  opacity: 0.9;
+}

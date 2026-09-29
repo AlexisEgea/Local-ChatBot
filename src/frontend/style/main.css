@@ -1,14 +1,15 @@
-/* Load each UI layer in order: reset, glass, layout, sidebar, messages, composer. */
+/* Load each UI layer in order: theme, workspace chrome, conversation. */
 @import url("./theme/base.css");
-@import url("./theme/glass.css");
-@import url("./workspace/layout.css");
-@import url("./workspace/sidebar/model.css");
-@import url("./workspace/sidebar/rails.css");
-@import url("./workspace/sidebar/history.css");
-@import url("./workspace/sidebar/chat-mode.css");
-@import url("./workspace/sidebar/theme.css");
-@import url("./workspace/api-keys.css");
-@import url("./conversation/messages.css");
-@import url("./conversation/markdown.css");
-@import url("./conversation/composer.css");
-@import url("./conversation/model-info.css");
+@import url("./theme/liquid-glass.css");
+@import url("./workspace-sidebar/layout.css");
+@import url("./workspace-sidebar/header/header.css");
+@import url("./workspace-sidebar/header/model/model.css");
+@import url("./workspace-sidebar/header/api-key-overlay/overlay.css");
+@import url("./workspace-sidebar/rail-sidebar/rail.css");
+@import url("./workspace-sidebar/rail-sidebar/history/history.css");
+@import url("./workspace-sidebar/rail-sidebar/design-option/layout.css");
+@import url("./workspace-sidebar/rail-sidebar/design-option/theme/theme.css");
+@import url("./conversation/message/message.css");
+@import url("./conversation/chat/prompt-bar.css");
+@import url("./conversation/chat/chat-style/markdown.css");
+@import url("./conversation/context-menu/information.css");
