@@ -5,7 +5,6 @@
   flex-direction: column;
   gap: 18px;
   padding: 16px;
-  border-radius: 22px;
   overflow: hidden;
 }
 
@@ -219,13 +218,4 @@
 .model-param--toggle input[type="checkbox"]:checked::after {
   left: 18px;
   opacity: 0.9;
-}
-
-.sidebar-section h2 {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--page-muted);
 }

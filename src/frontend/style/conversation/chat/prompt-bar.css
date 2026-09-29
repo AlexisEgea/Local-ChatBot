@@ -130,10 +130,6 @@
   cursor: pointer;
 }
 
-.conversation {
-  position: relative;
-}
-
 .conversation.is-picker-mode .composer-stack {
   cursor: pointer;
 }

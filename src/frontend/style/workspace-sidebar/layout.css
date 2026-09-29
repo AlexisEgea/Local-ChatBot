@@ -28,27 +28,6 @@
   max-width: 1180px;
 }
 
-.header {
-  box-sizing: border-box;
-  min-height: var(--bar-min-height);
-  padding: 0 18px;
-  display: flex;
-  align-items: center;
-  border-radius: var(--control-radius);
-  border: 0;
-  width: 100%;
-  text-align: left;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
 .workspace {
   flex: 1;
   min-height: 0;
@@ -64,8 +43,18 @@
 }
 
 .conversation {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-section h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--page-muted);
 }
