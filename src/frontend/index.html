@@ -85,20 +85,7 @@
           <!-- Input sits inside the conversation; fields change with the selected layout. -->
           <form id="chat-form" class="composer">
             <div class="composer-stack glass" id="composer-stack">
-              <div class="composer-picker" id="composer-picker" hidden>
-                <button type="button" class="composer-choice glass" data-layout="user">
-                  Default
-                  <span>User Message</span>
-                </button>
-                <button type="button" class="composer-choice glass" data-layout="system-user">
-                  Role-Based Prompt
-                  <span>System and User Prompts</span>
-                </button>
-                <button type="button" class="composer-choice glass" data-layout="cgse">
-                  CGSE 
-                  <span>Context, Goal, Source, Expectation</span>
-                </button>
-              </div>
+              <div class="composer-picker" id="composer-picker" hidden></div>
               <div class="composer-row" id="composer-row">
                 <div id="composer-fields" class="composer-fields"></div>
                 <button type="submit" id="chat-send" class="glass" aria-label="Send">
@@ -129,18 +116,6 @@
 
           <section class="sidebar-section" id="default-layout-section" hidden>
             <h2>chat</h2>
-            <button type="button" class="sidebar-layout glass is-active" data-layout="user">
-              Default
-              <span>User message</span>
-            </button>
-            <button type="button" class="sidebar-layout glass" data-layout="system-user">
-              Role-Based Prompt
-              <span>System and User Prompts</span>
-            </button>
-            <button type="button" class="sidebar-layout glass" data-layout="cgse">
-              CGSE 
-              <span>Context, Goal, Source, Expectation</span>
-            </button>
           </section>
 
           <section class="sidebar-section">
@@ -170,6 +145,10 @@
       <button type="button" data-action="rename">Rename</button>
       <button type="button" data-action="delete">Delete</button>
     </div>
+    <div id="layout-menu" class="history-menu glass" hidden>
+      <button type="button" data-action="edit">Edit</button>
+      <button type="button" data-action="delete">Delete</button>
+    </div>
     <div id="header-sidebar" class="header-sidebar glass" hidden>
       <button type="button" data-action="api-keys">API key</button>
     </div>
@@ -180,6 +159,35 @@
         <p id="api-key-error" class="api-key-error" hidden></p>
         <div class="api-key-actions">
           <button type="button" id="api-key-save" class="glass">Validate</button>
+        </div>
+      </div>
+    </div>
+    <div id="custom-layout-overlay" class="api-key-overlay" hidden>
+      <div class="api-key-dialog glass" role="dialog" aria-modal="true" aria-labelledby="custom-layout-title">
+        <h2 id="custom-layout-title">Custom Prompt</h2>
+        <label class="api-key-field">
+          <span class="api-key-label">Layout name</span>
+          <div class="api-key-control glass">
+            <input id="custom-layout-name" type="text" autocomplete="off" placeholder="My prompt" />
+          </div>
+        </label>
+        <label class="api-key-field">
+          <span class="api-key-label">Description</span>
+          <div class="api-key-control glass">
+            <input id="custom-layout-description" type="text" autocomplete="off" placeholder="Short description" />
+          </div>
+        </label>
+        <div class="custom-layout-prompts">
+          <div class="custom-layout-head">
+            <span class="api-key-label">Role</span>
+            <span class="api-key-label">Prompt</span>
+          </div>
+          <div id="custom-layout-fields" class="api-key-fields"></div>
+        </div>
+        <button type="button" id="custom-layout-add" class="glass custom-layout-add">Add prompt</button>
+        <p id="custom-layout-error" class="api-key-error" hidden></p>
+        <div class="api-key-actions">
+          <button type="button" id="custom-layout-save" class="glass">Save</button>
         </div>
       </div>
     </div>
