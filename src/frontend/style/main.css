@@ -11,5 +11,6 @@
 @import url("./workspace-sidebar/rail-sidebar/design-option/theme/theme.css");
 @import url("./conversation/message/message.css");
 @import url("./conversation/chat/prompt-bar.css");
+@import url("./conversation/chat/chat-mode/layouts.css");
 @import url("./conversation/chat/chat-style/markdown.css");
 @import url("./conversation/context-menu/information.css");
