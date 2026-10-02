@@ -1,0 +1,74 @@
+{
+  "layouts": [
+    {
+      "id": "user",
+      "label": "Default",
+      "description": "User message",
+      "fields": [
+        {
+          "name": "user",
+          "title": "User",
+          "placeholder": "Type a message",
+          "rows": 1,
+          "role": "user"
+        }
+      ]
+    },
+    {
+      "id": "system-user",
+      "label": "Role-Based Prompt",
+      "description": "System and User Prompts",
+      "fields": [
+        {
+          "name": "system",
+          "title": "System Instruction",
+          "placeholder": "System Instruction",
+          "rows": 2,
+          "role": "system"
+        },
+        {
+          "name": "user",
+          "title": "User Message",
+          "placeholder": "User Message",
+          "rows": 1,
+          "role": "user"
+        }
+      ]
+    },
+    {
+      "id": "cgse",
+      "label": "CGSE",
+      "description": "Context, Goal, Source, Expectation",
+      "fields": [
+        {
+          "name": "context",
+          "title": "Context",
+          "placeholder": "Context",
+          "rows": 2,
+          "role": "user"
+        },
+        {
+          "name": "goal",
+          "title": "Goal",
+          "placeholder": "Goal",
+          "rows": 2,
+          "role": "user"
+        },
+        {
+          "name": "source",
+          "title": "Source",
+          "placeholder": "Source",
+          "rows": 2,
+          "role": "user"
+        },
+        {
+          "name": "expectation",
+          "title": "Expectation",
+          "placeholder": "Expectation",
+          "rows": 2,
+          "role": "user"
+        }
+      ]
+    }
+  ]
+}
