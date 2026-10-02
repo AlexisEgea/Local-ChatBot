@@ -1,6 +1,8 @@
 /** Inline edit of a user or system bubble (fields, send, layout picker). */
 
-import { convertLayoutValues, LAYOUTS } from "../../chat/chat-mode/layouts.js";
+import { convertLayoutValues, CUSTOM_LAYOUT_PICKER, getLayouts } from "../../chat/chat-mode/layouts/configuration.js";
+import { onLayoutsChanged } from "../../chat/chat-mode/layouts/store.js";
+import { openCustomLayoutOverlay } from "../../chat/chat-mode/layouts/overlay.js";
 import { fillLayoutFields, readLayoutValues, resizeFields } from "../../chat/chat-mode/bar-mode.js";
 import { fillBubble } from "../../message/message-bubble.js";
 import { thread } from "../../message/message-list.js";
@@ -10,21 +12,35 @@ const SEND_ICON =
 
 let activeEdit = null;
 
-/** Draw the three layout choices used by the bottom composer. */
-function createBubblePicker() {
-  const picker = document.createElement("div");
-  picker.className = "composer-picker bubble-picker";
-  picker.hidden = true;
-  for (const layout of Object.values(LAYOUTS)) {
+/** Fill layout choice buttons, including saved Custom Prompts. */
+function fillBubblePicker(picker) {
+  picker.replaceChildren();
+  for (const layout of Object.values(getLayouts())) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "composer-choice glass";
     button.dataset.layout = layout.id;
     const hint = document.createElement("span");
-    hint.textContent = layout.fields.map((field) => field.placeholder).join(", ");
+    hint.textContent = layout.description || "";
     button.append(layout.label, hint);
     picker.appendChild(button);
   }
+  const custom = document.createElement("button");
+  custom.type = "button";
+  custom.className = "composer-choice glass";
+  custom.dataset.layout = CUSTOM_LAYOUT_PICKER;
+  const customHint = document.createElement("span");
+  customHint.textContent = "Name prompts and roles";
+  custom.append("Custom Prompt", customHint);
+  picker.appendChild(custom);
+}
+
+/** Draw the layout choices used by the bottom composer, including saved Custom Prompts. */
+function createBubblePicker() {
+  const picker = document.createElement("div");
+  picker.className = "composer-picker bubble-picker";
+  picker.hidden = true;
+  fillBubblePicker(picker);
   return picker;
 }
 
@@ -127,6 +143,10 @@ export function beginMessageEdit(index, options) {
       return;
     }
     event.stopPropagation();
+    if (button.dataset.layout === CUSTOM_LAYOUT_PICKER) {
+      openCustomLayoutOverlay();
+      return;
+    }
     const nextValues = convertLayoutValues(currentLayout, button.dataset.layout, readLayoutValues(fieldsRoot));
     setPicking(false);
     paintFields(button.dataset.layout, nextValues);
@@ -163,6 +183,7 @@ export function beginMessageEdit(index, options) {
   activeEdit = {
     finish,
     fieldsRoot,
+    picker,
     pickerMode,
     setPicking,
     syncPickerClass,
@@ -173,6 +194,12 @@ export function beginMessageEdit(index, options) {
     },
   };
 }
+
+onLayoutsChanged(() => {
+  if (activeEdit?.picker) {
+    fillBubblePicker(activeEdit.picker);
+  }
+});
 
 /** Rebuild the inline editor when Chat Mode changes the prompt type. */
 export function applyEditingLayout(layoutId) {
