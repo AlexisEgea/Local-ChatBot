@@ -15,7 +15,11 @@ import {
 } from "./conversation/chat/chat-mode/bar-mode.js";
 import { onModeChoice, setModeChoiceEnabled } from "./conversation/chat/chat-mode/mode-choice.js";
 import { onStop, onSubmit, setBusy } from "./conversation/run-execution.js";
-import { DEFAULT_CHOOSE_MODE, DEFAULT_LAYOUT, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/chat/chat-mode/layouts.js";
+import { DEFAULT_CHOOSE_MODE, getDefaultLayoutId, inferLayout, inferValues, turnStartIndex, withLayoutMeta } from "./conversation/chat/chat-mode/layouts/configuration.js";
+import { initLayoutMenu } from "./conversation/chat/chat-mode/layouts/menu.js";
+import { initCustomLayouts } from "./conversation/chat/chat-mode/layouts/overlay.js";
+import { paintLayoutChoices } from "./conversation/chat/chat-mode/layouts/paint.js";
+import { loadLayouts } from "./conversation/chat/chat-mode/layouts/store.js";
 import { buildOutgoingMessages, canSend, displayText } from "./conversation/chat/chat-mode/payload.js";
 import { onToggle, setExpanded } from "./workspace-sidebar/header/expand.js";
 import { initHeaderSidebar } from "./workspace-sidebar/header/sidebar.js";
@@ -363,9 +367,29 @@ onHistoryMenuAction(handleHistoryMenu);
 onMessageMenuAction(handleMessageMenu);
 
 applyChooseMode(DEFAULT_CHOOSE_MODE);
-applyLayout(DEFAULT_LAYOUT);
 initTheme();
 initHeaderSidebar();
 initApiKeys();
+initCustomLayouts();
+initLayoutMenu({
+  afterDelete(layoutId) {
+    if (getCurrentLayout() === layoutId) {
+      applyLayout(getDefaultLayoutId());
+      return;
+    }
+    setActiveLayoutButton(getCurrentLayout());
+  },
+});
 initModelOptions();
 refreshHistoryList();
+
+loadLayouts()
+  .then(() => {
+    paintLayoutChoices();
+    applyLayout(getDefaultLayoutId());
+  })
+  .catch((error) => {
+    console.error(error);
+    paintLayoutChoices();
+    applyLayout(getDefaultLayoutId());
+  });
