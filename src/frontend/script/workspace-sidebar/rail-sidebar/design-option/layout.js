@@ -1,6 +1,8 @@
 /** Chat Mode: Default layout buttons. */
 
 import { getChooseMode } from "./choose.js";
+import { CUSTOM_LAYOUT_PICKER } from "../../../conversation/chat/chat-mode/layouts/configuration.js";
+import { openCustomLayoutOverlay } from "../../../conversation/chat/chat-mode/layouts/overlay.js";
 
 const chatMode = document.getElementById("chat-mode");
 
@@ -11,11 +13,18 @@ export function setActiveLayoutButton(layoutId) {
   }
 }
 
-/** Bind clicks on default-layout buttons (ignored while picker mode is on). */
+/** Bind clicks on default-layout buttons (layout apply is ignored while picker mode is on). */
 export function onDefaultLayoutClick(handler) {
   chatMode.addEventListener("click", (event) => {
     const button = event.target.closest(".sidebar-layout");
-    if (!button || getChooseMode() === "picker") {
+    if (!button) {
+      return;
+    }
+    if (button.dataset.layout === CUSTOM_LAYOUT_PICKER) {
+      openCustomLayoutOverlay();
+      return;
+    }
+    if (getChooseMode() === "picker") {
       return;
     }
     handler(button.dataset.layout);

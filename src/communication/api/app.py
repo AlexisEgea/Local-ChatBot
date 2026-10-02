@@ -16,6 +16,7 @@ from communication.api.chat import router as chat_router
 from communication.api.execution import router as execution_router
 from communication.api.history import router as history_router
 from communication.api.key import router as keys_router
+from communication.api.layout import router as layouts_router
 from communication.api.model import router as models_router
 from communication.api.websocket import lifespan, router as websocket_router
 
@@ -34,6 +35,7 @@ app.include_router(chat_router)
 app.include_router(execution_router)
 app.include_router(history_router)
 app.include_router(keys_router)
+app.include_router(layouts_router)
 app.include_router(models_router)
 app.include_router(websocket_router)
 

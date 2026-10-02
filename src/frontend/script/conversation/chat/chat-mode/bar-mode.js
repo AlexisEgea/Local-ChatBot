@@ -1,11 +1,11 @@
-/** Bar mode: textareas for the current prompt mode (Default, Role-Based, CGSE). */
+/** Bar mode: textareas for the current prompt mode. */
 
-import { convertLayoutValues, DEFAULT_LAYOUT, LAYOUTS } from "./layouts.js";
+import { convertLayoutValues, getDefaultLayoutId, getLayout } from "./layouts/configuration.js";
 import { form } from "../prompt-bar.js";
 
 const fieldsRoot = document.getElementById("composer-fields");
 
-let currentLayout = DEFAULT_LAYOUT;
+let currentLayout = getDefaultLayoutId();
 
 /** Show the field title only while the textarea has content. */
 function syncFieldLabel(wrap, textarea) {
@@ -48,7 +48,7 @@ function bindFieldEvents(wrap, textarea, onSend) {
 
 /** Draw layout textareas into a container, optionally prefilled. */
 export function fillLayoutFields(root, layoutId, values = {}, options = {}) {
-  const layout = LAYOUTS[layoutId] ?? LAYOUTS[DEFAULT_LAYOUT];
+  const layout = getLayout(layoutId);
   const { onSend, fieldClass, idPrefix } = options;
   root.replaceChildren();
 
@@ -100,7 +100,7 @@ export function readLayoutValues(root) {
 
 /** Draw the textareas that belong to the active bar mode. */
 export function renderFields(layoutId) {
-  const layout = LAYOUTS[layoutId] ?? LAYOUTS[DEFAULT_LAYOUT];
+  const layout = getLayout(layoutId);
   const values = convertLayoutValues(currentLayout, layout.id, getComposerValues());
   currentLayout = layout.id;
   fillLayoutFields(fieldsRoot, currentLayout, values, { idPrefix: "composer-" });

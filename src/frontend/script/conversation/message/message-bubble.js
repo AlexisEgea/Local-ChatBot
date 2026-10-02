@@ -1,6 +1,6 @@
 /** Message bubble: structured fields, plain text, and assistant reveal. */
 
-import { inferLayout, LAYOUTS, parseCgse } from "../chat/chat-mode/layouts.js";
+import { getLayout, inferLayout, inferValues } from "../chat/chat-mode/layouts/configuration.js";
 import { getReplySource } from "../../workspace-sidebar/header/model/snapshot.js";
 import { getRevealedText, revealFrom, revealText, skipTextReveal } from "../animation/typewriter-reveal-animation.js";
 import { paintMarkdown } from "../chat/chat-style/paint-markdown.js";
@@ -47,22 +47,12 @@ export function fillBubble(bubble, role, content, message = null) {
   }
 
   const layoutId = message.layout || inferLayout(message, 0, [message]);
-  if (layoutId === "cgse") {
-    const values = message.values && typeof message.values === "object" ? message.values : parseCgse(content);
-    paintReadFields(bubble, LAYOUTS.cgse.fields, values);
-    return;
-  }
-  if (layoutId === "system-user" || role === "system") {
-    if (role === "system") {
-      const value = message.values?.system ?? content;
-      paintReadFields(bubble, [LAYOUTS["system-user"].fields[0]], { system: value });
-      return;
-    }
-    const value = message.values?.user ?? content;
-    paintReadFields(bubble, [LAYOUTS["system-user"].fields[1]], { user: value });
-    return;
-  }
-  paintReadFields(bubble, LAYOUTS.user.fields, { user: message.values?.user ?? content });
+  const layout = getLayout(layoutId);
+  const values = message.values && typeof message.values === "object" ? message.values : inferValues(message, 0, [message]);
+  const fields = layout.fields.filter((field) =>
+    role === "system" ? field.role === "system" : field.role !== "system",
+  );
+  paintReadFields(bubble, fields.length ? fields : layout.fields, values);
 }
 
 /** Paint an assistant bubble and reveal its reply letter by letter. */

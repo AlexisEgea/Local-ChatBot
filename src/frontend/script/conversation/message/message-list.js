@@ -1,6 +1,6 @@
 /** Chat thread: empty state, rows, and replacing the list from history. */
 
-import { inferLayout, LAYOUTS, parseCgse } from "../chat/chat-mode/layouts.js";
+import { getLayout, inferLayout, inferValues } from "../chat/chat-mode/layouts/configuration.js";
 import { fillBubble, paintReadFields } from "./message-bubble.js";
 import { paintWaitingBlob } from "../animation/waiting-animation.js";
 import { cancelTextReveal } from "../animation/typewriter-reveal-animation.js";
@@ -40,13 +40,11 @@ export function appendRow(role, extraClass, index, painter) {
 export function appendMessage(role, content, extraClass = "", index = null, message = null) {
   if (role === "user" && message) {
     const layoutId = message.layout || inferLayout(message, 0, [message]);
-    if (layoutId === "cgse") {
-      const values = message.values && typeof message.values === "object" ? message.values : parseCgse(content);
+    const values = message.values && typeof message.values === "object" ? message.values : inferValues(message, 0, [message]);
+    const fields = getLayout(layoutId).fields.filter((field) => field.role !== "system" && values[field.name]);
+    if (fields.length > 1) {
       let last = null;
-      for (const field of LAYOUTS.cgse.fields) {
-        if (!values[field.name]) {
-          continue;
-        }
+      for (const field of fields) {
         last = appendRow("user", extraClass, index, (bubble) => {
           paintReadFields(bubble, [field], { [field.name]: values[field.name] });
         });
