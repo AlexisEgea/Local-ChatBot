@@ -1,6 +1,8 @@
 /** Mode choice: Default / Role-Based / CGSE cards on the prompt bar (Chat Bar). */
 
 import { conversation, form, stack } from "../prompt-bar.js";
+import { CUSTOM_LAYOUT_PICKER } from "./layouts/configuration.js";
+import { openCustomLayoutOverlay } from "./layouts/overlay.js";
 
 const picker = document.getElementById("composer-picker");
 
@@ -47,6 +49,11 @@ export function onModeChoice(handler) {
       return;
     }
     event.stopPropagation();
+    if (button.dataset.layout === CUSTOM_LAYOUT_PICKER) {
+      setChoosing(false);
+      openCustomLayoutOverlay();
+      return;
+    }
     setChoosing(false);
     handler(button.dataset.layout);
   });
