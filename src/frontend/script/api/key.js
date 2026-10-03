@@ -32,11 +32,11 @@ export async function testApiKey(id, value) {
   return data.ok === true;
 }
 
-/** Test keys, then save them to infra/env. */
-export async function saveApiKeys(keys) {
+/** Test one key, then save it to infra/env. */
+export async function saveApiKey(id, value) {
   const data = await request("/api/keys", {
     method: "PUT",
-    body: JSON.stringify({ keys }),
+    body: JSON.stringify({ id, value }),
   });
   return data.keys ?? [];
 }

@@ -28,7 +28,7 @@ def _test_huggingface(token: str) -> None:
     try:
         HfApi(token=token).whoami()
     except Exception as error:
-        raise ValueError("This Hugging Face token is invalid.") from error
+        raise ValueError("Hugging Face token is invalid.") from error
 
 
 def _test_openai(token: str) -> None:
@@ -36,4 +36,4 @@ def _test_openai(token: str) -> None:
     try:
         next(iter(OpenAI(api_key=token).models.list()), None)
     except Exception as error:
-        raise ValueError("This OpenAI API key is invalid.") from error
+        raise ValueError("OpenAI API key is invalid.") from error

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Local ChatBot</title>
+    <title>Local LLM Chat UI</title>
     <!-- Bundles theme, workspace-sidebar, and conversation styles. -->
     <link rel="stylesheet" href="./style/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css" />
@@ -29,7 +29,7 @@
 
       <div class="app-core">
       <button type="button" class="header glass" id="app-toggle" aria-expanded="false">
-        <h1>Local ChatBot</h1>
+        <h1>Local LLM Chat UI</h1>
       </button>
 
       <div class="workspace">
@@ -157,9 +157,6 @@
         <h2 id="api-key-title">API keys</h2>
         <div id="api-key-fields" class="api-key-fields"></div>
         <p id="api-key-error" class="api-key-error" hidden></p>
-        <div class="api-key-actions">
-          <button type="button" id="api-key-save" class="glass">Validate</button>
-        </div>
       </div>
     </div>
     <div id="custom-layout-overlay" class="api-key-overlay" hidden>

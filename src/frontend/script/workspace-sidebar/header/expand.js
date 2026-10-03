@@ -5,7 +5,7 @@ import { setModelPanelOpen } from "./model/panel.js";
 const app = document.getElementById("app");
 const toggle = document.getElementById("app-toggle");
 
-/** Return whether the Local ChatBot workspace is expanded. */
+/** Return whether the Local LLM Chat User Interface workspace is expanded. */
 export function isExpanded() {
   return app.classList.contains("is-expanded");
 }
@@ -17,7 +17,7 @@ export function setExpanded(expanded) {
   setModelPanelOpen(expanded);
 }
 
-/** Bind a click handler on the Local ChatBot title. */
+/** Bind a click handler on the Local LLM Chat User Interface title. */
 export function onToggle(handler) {
   toggle.addEventListener("click", handler);
 }

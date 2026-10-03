@@ -19,8 +19,8 @@ export function clearFieldStatus(row) {
   status.classList.remove("is-ok", "is-bad");
 }
 
-/** Show whether this field's test passed. */
-export function setFieldStatus(row, ok) {
+/** Show a per-field result under the password row. */
+export function setFieldStatus(row, ok, message) {
   const status = row.querySelector(".api-key-status");
   if (!status) {
     return;
@@ -28,5 +28,6 @@ export function setFieldStatus(row, ok) {
   status.hidden = false;
   status.classList.toggle("is-ok", ok);
   status.classList.toggle("is-bad", !ok);
-  status.textContent = ok ? "This API key is valid." : "This API key is invalid.";
+  status.textContent =
+    message ?? (ok ? "API key is valid." : "API key is invalid.");
 }

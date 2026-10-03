@@ -1,10 +1,10 @@
-# Local ChatBot
+# Local-LLM-Chat-User-Interface
 
 ## Definition
 
 This project is a minimalist chat interface you run on your own machine to talk to language models.
 
-<img src="./data/documentation/chat_ui.png" alt="Local ChatBot workspace" width="100%">
+<img src="./data/documentation/chat_ui.png" alt="Local LLM Chat User Interface workspace" width="100%">
 
 ## Project
 
@@ -27,10 +27,10 @@ Here are the providers developed so far for this project:
 - `Local`: a model folder on disk, loaded with Transformers.
 - `Test`: a fixed markdown reply, used to exercise the UI without a remote model.
 
-Click on the **Local ChatBot** header to expand the workspace and open the Model panel:
+Click on the **Local LLM Chat User Interface** header to expand the workspace and open the Model panel:
 <img src="./data/documentation/chat_model.png" alt="Model panel" width="100%">
 
-To use providers that require an API key, right-click the **Local ChatBot** header and select the API Key option:
+To use providers that require an API key, right-click the **Local LLM Chat User Interface** header and select the API Key option:
 <img src="./data/documentation/chat_api_key.png" alt="API key overlay" width="100%">
 
 On the API Key overlay, you can test your keys and save them to the `infra/env` file.

@@ -8,9 +8,3 @@ class ApiKeyValue(BaseModel):
 
     id: str = Field(..., min_length=1)
     value: str = ""
-
-
-class ApiKeyListBody(BaseModel):
-    """Keys submitted for a save."""
-
-    keys: list[ApiKeyValue] = Field(..., min_length=1)

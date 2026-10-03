@@ -40,7 +40,7 @@ class OpenAIProvider(Provider):
         if not api_key:
             raise RuntimeError(
                 "OPENAI_API_KEY is missing. Add an OpenAI API key from "
-                "https://platform.openai.com/api-keys in the Local ChatBot API key popup."
+                "https://platform.openai.com/api-keys in the Local LLM Chat User Interface API key popup."
             )
         return OpenAI(api_key=api_key, base_url=API_BASE_URL)
 
