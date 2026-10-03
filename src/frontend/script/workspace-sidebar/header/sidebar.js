@@ -5,12 +5,12 @@ import { openApiKeyOverlay } from "./api-key-overlay/overlay.js";
 const header = document.getElementById("app-toggle");
 const headerSidebar = document.getElementById("header-sidebar");
 
-/** Hide the Local ChatBot header sidebar. */
+/** Hide the Local LLM Chat User Interface header sidebar. */
 export function hideHeaderSidebar() {
   headerSidebar.hidden = true;
 }
 
-/** Bind right-click on the Local ChatBot title. */
+/** Bind right-click on the Local LLM Chat User Interface title. */
 export function initHeaderSidebar() {
   header.addEventListener("contextmenu", (event) => {
     event.preventDefault();
