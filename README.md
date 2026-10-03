@@ -2,74 +2,107 @@
 
 ## Definition
 
-This project is a local chat interface for talking to language models:
+This project is a minimalist chat interface you run on your own machine to talk to language models.
 
-<img src="./data/documentation/chat_ui.png" alt="Local ChatBot workspace">
+<img src="./data/documentation/chat_ui.png" alt="Local ChatBot workspace" width="100%">
 
 ## Project
 
-The app is a fully transparent workspace: You can pick the conversation bar, the provider and the companies associated with their models and its parameters, then keep questions and replies on your machine.
+The workspace is meant to stay fully transparent and readable: you see where a model comes from, how a turn is built, and which settings apply before you send.
+Models can be loaded locally or reached through a provider. Each one exposes its parameters so you can tune the run instead of relying on hidden defaults.
+The usual pieces of a chat product are here as well: sending a turn, keeping threads, and controlling how the reply is produced.
 
-## Features:
+## Features
+
+The interface looks small on purpose. The sections below cover what you need to know to use it.
 
 ### Providers
+---
 
 Providers list models from each company and expose what the UI can show (parameters, pricing, and so on).
 
-- `Hugging Face`: Hub models. A token is required when the catalog or inference needs it.
-- `OpenAI`: paid chat models, with pricing, token counts, and cost when the API returns them.
+Here are the providers developed so far for this project:
+
+- `Hugging Face`: hub models. A token is required when the catalog or inference needs it.
+- `OpenAI`: paid OpenAI chat models, with pricing, token counts, and cost.
 - `Local`: a model folder on disk, loaded with Transformers.
 - `Test`: a fixed markdown reply, used to exercise the UI without a remote model.
 
-Click the **Local ChatBot** header to expand the workspace and open the Model panel:
+Click on the **Local ChatBot** header to expand the workspace and open the Model panel:
+<img src="./data/documentation/chat_model.png" alt="Model panel" width="100%">
 
-<img src="./data/documentation/chat_model.png" alt="Model panel">
+To use providers that require an API key, right-click the **Local ChatBot** header and select the API Key option:
+<img src="./data/documentation/chat_api_key.png" alt="API key overlay" width="100%">
+
+On the API Key overlay, you can test your keys and save them to the `infra/env` file.
 
 ### Prompt layouts
+---
 
-Public chat UIs often hide how the prompt is structured. Here you can choose a layout so each field has a clear role.
+Public chat UIs often hide how a prompt is built. This is one of the features I wanted to make visible: you see every field that goes to the model, with a clear role, and nothing extra is added behind the scenes.
+
+Pick a layout so each field is explicit:
 
 - `Default`: a single user message.
-- `Role-Based Prompt`: a system instruction and a user message.
-- `CGSE`: Context, Goal, Source, and Expectation packed into one user turn.
+- `Role-Based Prompt`: the usual chat-completion split: a system instruction and a user message.
+- `CGSE`: inspired by Microsoft's prompting practice. A clear answer needs a clear question, so the user turn is split into Context, Goal, Source, and Expectation.
+- `Custom Prompt`: define your own fields, how many there are, and whether each one is system or user.
 
-To switch layout, click the area between the thread and the prompt bar (Chat Bar mode) and pick a bar.
+To switch layout, click the area between the thread and the prompt bar (Chat Bar mode) and pick a bar:
+<img src="./data/documentation/chat_layout.png" alt="Layout picker" width="100%">
 
-<!-- Screenshot to add: layout picker. -->
-
-### Conversation history
+### Conversation History
+---
 
 Like other chat UIs, you can start a new chat and keep past threads. Conversations are stored locally as JSON under `data/history/`.
 
+Here is a list of features you can find on a common chat interface:
+
 - `New chat`: start an empty conversation.
 - `History`: list saved threads. A conversation is written after the first completed exchange.
-- `Title generation`: a first title from the first user question and assistant reply, then a final title after the second exchange (using the first turn as well). Titles are generated with `openai/gpt-oss-20b`.
+- `Title generation`: a first title from the first user question and assistant reply, then a final title after the second exchange (using the first turn as well). Titles are generated with `openai/gpt-oss-20b` by default (can be changed only in the code).
 - `History actions` (right-click a saved chat):
   1. Rename the conversation title.
   2. Delete the conversation.
 
-<!-- Screenshot to add: History rail. -->
+Click the left rail to open the conversation sidebar:
+<img src="./data/documentation/chat_conversation_sidebar.png" alt="Conversation sidebar" width="100%">
 
-### Chat Mode
+### Project Settings
+---
 
-Chat Mode is the right-hand rail.
-
+Chat Mode allows you to select your layout in two ways:
 - `Chat Bar`: pick the prompt layout from the conversation column.
-- `Default`: pin one layout for every new message.
-- `Theme`: Light, Dark, or Custom (page background and liquid glass colors).
+- `Default`: keep the selected prompt layout on the sidebar.
+
+In Default mode, right-click a prompt layout to edit or delete it.
+
+Theme setting lets you personalize the project's appearance with different color schemes:
+- `Light`: bright and clean interface with a white background and standard accent colors.
+- `Dark`: deep black background for a sleek, low-light experience.
+- `Custom`: fully customizable palette—choose your own colors for the background and all liquid glass UI elements (conversation bar, buttons, sidebar, etc.).
+
+Click the right rail to open the configuration sidebar:
+<img src="./data/documentation/chat_setting_sidebar.png" alt="Configuration sidebar" width="100%">
 
 ### Conversation
+---
 
-The thread is the list of messages in the current chat.
+Here is the list of actions available in the current conversation:
 
-- `Send`: submit the current bar and wait for a reply.
-- `Stop`: halt generation or the typewriter from the send control (square while a run is in flight).
-- `Copy`: copy a message (right-click).
-- `Edit`: change a user or system bubble and resend (right-click).
-- `Delete`: remove a user turn and the paired system / assistant messages (right-click on a user bubble).
-- `Information`: show the Model snapshot for an assistant reply (parameters, and pricing or tokens when available).
+On the conversation bar:
+- `Send (arrow icon)`: submit the current bar and wait for a reply.
+- `Stop (square icon)`: halt generation or the typewriter from the send control.
 
-API keys (Hugging Face, OpenAI) are set from the header sidebar and stored in `infra/env`.
+By right-clicking a user question:
+- `Edit`: change a user or system bubble and resend (layout configuration works while editing).
+- `Delete`: remove a user turn and the paired system/assistant messages.
+
+By right-clicking a system response:
+- `Information`: show the model snapshot for an assistant reply (model and parameter data, and tokens with prices when available).
+
+By right-clicking a user question or a system response:
+- `Copy`: copy the content of the bubble.
 
 ## Stack
 
@@ -87,6 +120,11 @@ API keys (Hugging Face, OpenAI) are set from the header sidebar and stored in `i
 
 ```text
 Local-ChatBot/
+├── data/
+│   ├── configuration/
+│   │   └── layouts.json
+│   ├── documentation/
+│   └── history/
 ├── infra/
 │   ├── env
 │   └── requirements.txt
@@ -103,6 +141,7 @@ Local-ChatBot/
 │   ├── backend/
 │   │   ├── api_key/
 │   │   ├── history/
+│   │   ├── layout/
 │   │   └── model/
 │   ├── communication/
 │   │   ├── main.py
@@ -116,11 +155,17 @@ Local-ChatBot/
 │       │   ├── main.js
 │       │   ├── api/
 │       │   ├── conversation/
+│       │   │   └── chat/
+│       │   │       └── chat-mode/
+│       │   │           └── layouts/
+│       │   │               └── action/
 │       │   └── workspace-sidebar/
 │       └── style/
 │           ├── main.css
 │           ├── theme/
 │           ├── conversation/
+│           │   └── chat/
+│           │       └── chat-mode/
 │           └── workspace-sidebar/
 └── .vscode/
     └── launch.json
