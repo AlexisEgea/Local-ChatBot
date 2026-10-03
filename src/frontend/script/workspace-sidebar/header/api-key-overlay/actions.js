@@ -1,42 +1,50 @@
-/** Test and Validate actions on the API key overlay. */
+/** Test and Save actions on one API key row. */
 
-import { saveApiKeys, testApiKey } from "../../../api/key.js";
-import { hideApiKeyOverlay } from "./overlay.js";
-import { readKeys } from "./fields.js";
+import { saveApiKey, testApiKey } from "../../../api/key.js";
 import { setError, setFieldStatus } from "./status.js";
 
-const saveButton = document.getElementById("api-key-save");
+function rowButtons(row) {
+  return [...row.querySelectorAll(".api-key-test, .api-key-save")];
+}
 
-/** Bind Test on one password row. */
-export function bindTestAction(row, keyId, input) {
+function setRowBusy(row, busy) {
+  for (const button of rowButtons(row)) {
+    button.disabled = busy;
+  }
+}
+
+/** Bind Test and Save on one password row. */
+export function bindRowActions(row, keyId, input) {
   const test = row.querySelector(".api-key-test");
+  const save = row.querySelector(".api-key-save");
+
   test.addEventListener("click", async () => {
     setError("");
-    test.disabled = true;
+    setRowBusy(row, true);
     try {
       const ok = await testApiKey(keyId, input.value);
       setFieldStatus(row, ok);
     } catch (error) {
-      setFieldStatus(row, false);
-      setError(error instanceof Error ? error.message : String(error));
+      setFieldStatus(row, false, error instanceof Error ? error.message : String(error));
     } finally {
-      test.disabled = false;
+      setRowBusy(row, false);
     }
   });
-}
 
-/** Bind Validate: write keys then close the overlay. */
-export function bindSaveAction() {
-  saveButton.addEventListener("click", async () => {
+  save.addEventListener("click", async () => {
     setError("");
-    saveButton.disabled = true;
+    setRowBusy(row, true);
     try {
-      await saveApiKeys(readKeys());
-      hideApiKeyOverlay();
+      await saveApiKey(keyId, input.value);
+      setFieldStatus(row, true, `${keyId} saved`);
     } catch (error) {
-      setError(error instanceof Error ? error.message : String(error));
+      setFieldStatus(
+        row,
+        false,
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
-      saveButton.disabled = false;
+      setRowBusy(row, false);
     }
   });
 }
