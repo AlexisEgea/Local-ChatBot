@@ -1,6 +1,6 @@
 #!/bin/bash
 
-project_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+project_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 python_version="3.11"
 conda_env_name="$(basename "$project_directory")"
 
