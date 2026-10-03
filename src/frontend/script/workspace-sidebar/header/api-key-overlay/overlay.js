@@ -1,7 +1,6 @@
 /** API key overlay: show or hide the centered dialog. */
 
 import { getApiKeys } from "../../../api/key.js";
-import { bindSaveAction } from "./actions.js";
 import { paintField } from "./fields.js";
 import { setError } from "./status.js";
 
@@ -27,15 +26,13 @@ export async function openApiKeyOverlay() {
   }
 }
 
-/** Bind overlay backdrop, validate, and Escape. */
+/** Bind overlay backdrop and Escape. */
 export function initApiKeys() {
   overlay.addEventListener("click", (event) => {
     if (event.target === overlay) {
       hideApiKeyOverlay();
     }
   });
-
-  bindSaveAction();
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
