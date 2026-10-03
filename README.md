@@ -8,17 +8,28 @@ This project is a minimalist chat interface you run on your own machine to talk 
 
 ## Project
 
-The workspace is meant to stay fully transparent and readable: you see where a model comes from, how a turn is built, and which settings apply before you send.  
-Models can be loaded locally or reached through a provider. Each one exposes its parameters so you can tune the run instead of relying on hidden defaults.  
-The usual pieces of a chat product are here as well: sending a turn, keeping threads, and controlling how the reply is produced.
+The workspace is meant to stay fully transparent and readable.  
+
+Models can be loaded locally or reached through a provider. Each one exposes its parameters, so the run can be tuned instead of relying on hidden defaults.  
+
+What's visible:
+- the model, its company, and its provider
+- the parameters that will be used with the user request
+- the prompts, which are assembled from the prompt configuration layout, with nothing added behind the scenes
+  
+Common features from a chat product are also developed:
+- sending a request and receiving a streamed assistant reply
+- keeping conversation threads, with new chats and generated titles
+- controlling how the reply is generated, and stopping a run in progress
+- editing, deleting, or copying messages in the current conversation 
 
 ## Features
 
-The interface looks small on purpose. The sections below cover what you need to know to use it.
+The interface looks minimalist on purpose. The sections below cover how the project works.
 
 ### Providers
 
-Providers list models from each company and expose what the UI can show (parameters, pricing, and so on).
+Providers list models from each company and, when available, expose their parameters, pricing, and so on.
 
 Here are the providers developed so far for this project:
 
@@ -33,27 +44,27 @@ Click on the **Local LLM Chat User Interface** header to expand the workspace an
 To use providers that require an API key, right-click the **Local LLM Chat User Interface** header and select the API Key option:
 <img src="./data/documentation/chat_api_key.png" alt="API key overlay" width="100%">
 
-On the API Key overlay, you can test your keys and save them to the `infra/env` file.
+On the API Key overlay, keys can be tested and saved to the `infra/env` file.
 
 ### Prompt layouts
 
-Public chat UIs often hide how a prompt is built. This is one of the features I wanted to make visible: you see every field that goes to the model, with a clear role, and nothing extra is added behind the scenes.
+Public chat UIs often hide how a prompt is built. Here, one of the most interesting features is that every field that goes to the model is visible, with a clear role, and nothing extra is added behind the scenes.
 
 Pick a layout so each field is explicit:
 
 - `Default`: a single user message.
 - `Role-Based Prompt`: the usual chat-completion split: a system instruction and a user message.
-- `CGSE`: inspired by Microsoft's prompting practice. A clear answer needs a clear question, so the user turn is split into Context, Goal, Source, and Expectation.
-- `Custom Prompt`: define your own fields, how many there are, and whether each one is system or user.
+- `CGSE`: inspired by Microsoft's prompting practice. A clear answer needs a clear question, so the user turn is split into four main concepts: Context, Goal, Source, and Expectation.
+- `Custom Prompt`: the number of prompt fields, and whether each one is a system or user role, can be defined.
 
-To switch layout, click the area between the thread and the prompt bar (Chat Bar mode) and pick a bar:
+To switch layout, click the area between the thread and the prompt bar (Chat Bar mode) and select a layout:
 <img src="./data/documentation/chat_layout.png" alt="Layout picker" width="100%">
 
 ### Conversation History
 
-Like other chat UIs, you can start a new chat and keep past threads. Conversations are stored locally as JSON under `data/history/`.
+Like other chat UIs, a new chat can be started and past threads are kept. Conversations are stored locally as JSON under `data/history/`.
 
-Here is a list of features you can find on a common chat interface:
+Here is a list of features found on a common chat interface:
 
 - `New chat`: start an empty conversation.
 - `History`: list saved threads. A conversation is written after the first completed exchange.
@@ -67,16 +78,16 @@ Click the left rail to open the conversation sidebar:
 
 ### Project Settings
 
-Chat Mode allows you to select your layout in two ways:
-- `Chat Bar`: pick the prompt layout from the conversation column.
-- `Default`: keep the selected prompt layout on the sidebar.
+Chat Mode allows the layout to be selected in two ways:
+- `Chat Bar`: the prompt layout is picked from the conversation column.
+- `Default`: keep the selected prompt layout on the left sidebar.
 
 In Default mode, right-click a prompt layout to edit or delete it.
 
-Theme setting lets you personalize the project's appearance with different color schemes:
+Theme setting personalizes the project's appearance with different color schemes:
 - `Light`: bright and clean interface with a white background and standard accent colors.
 - `Dark`: deep black background for a sleek, low-light experience.
-- `Custom`: fully customizable palette—choose your own colors for the background and all liquid glass UI elements (conversation bar, buttons, sidebar, etc.).
+- `Custom`: fully customizable palette-colors can be chosen for the background and all liquid glass UI elements (conversation bar, buttons, sidebar, etc.).
 
 Click the right rail to open the configuration sidebar:
 <img src="./data/documentation/chat_setting_sidebar.png" alt="Configuration sidebar" width="100%">
@@ -86,7 +97,7 @@ Click the right rail to open the configuration sidebar:
 Here is the list of actions available in the current conversation:
 
 On the conversation bar:
-- `Send (arrow icon)`: submit the current bar and wait for a reply.
+- `Send (arrow icon)`: submit the current user query and wait for a reply.
 - `Stop (square icon)`: halt generation or the typewriter from the send control.
 
 By right-clicking a user question:
