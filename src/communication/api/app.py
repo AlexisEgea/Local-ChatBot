@@ -22,7 +22,7 @@ from communication.api.websocket import lifespan, router as websocket_router
 
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
-app = FastAPI(title="Local ChatBot API", lifespan=lifespan)
+app = FastAPI(title="Local LLM Chat User Interface API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

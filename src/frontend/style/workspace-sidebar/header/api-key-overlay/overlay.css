@@ -1,4 +1,4 @@
-/* Centered API key dialog opened from the Local ChatBot header. */
+/* Centered API key dialog opened from the Local LLM Chat User Interface header. */
 
 .api-key-overlay {
   position: fixed;
@@ -95,7 +95,8 @@
   height: 18px;
 }
 
-.api-key-test {
+.api-key-test,
+.api-key-save {
   flex: none;
   display: grid;
   place-items: center;
@@ -109,6 +110,7 @@
 }
 
 .api-key-test:disabled,
+.api-key-save:disabled,
 .api-key-actions button:disabled {
   opacity: 0.45;
   cursor: default;

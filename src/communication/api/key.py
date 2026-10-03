@@ -7,7 +7,7 @@ import sys
 
 from fastapi import APIRouter, HTTPException
 
-from communication.utils.dataclass.key import ApiKeyListBody, ApiKeyValue
+from communication.utils.dataclass.key import ApiKeyValue
 
 BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
 if str(BACKEND_DIR) not in sys.path:
@@ -51,15 +51,11 @@ async def test_one_key(payload: ApiKeyValue) -> dict:
 
 
 @router.put("/api/keys")
-async def put_keys(payload: ApiKeyListBody) -> dict:
-    """Test keys, then write them to infra/env if they are valid."""
+async def put_key(payload: ApiKeyValue) -> dict:
+    """Test one key, then write it to infra/env if it is valid."""
     try:
-        for item in payload.keys:
-            await asyncio.to_thread(test_api_key, item.id, item.value)
-        keys = await asyncio.to_thread(
-            save_api_keys,
-            {item.id: item.value for item in payload.keys},
-        )
+        await asyncio.to_thread(test_api_key, payload.id, payload.value)
+        keys = await asyncio.to_thread(save_api_keys, {payload.id: payload.value})
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as error:
