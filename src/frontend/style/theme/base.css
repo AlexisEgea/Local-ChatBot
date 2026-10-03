@@ -1,0 +1,38 @@
+/* Global reset and page defaults. */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --page-bg: #e7e9ee;
+  --page-fg: #1c1c1e;
+  --page-muted: #5c616a;
+  --page-placeholder: #7a808a;
+  --control-radius: 16px;
+  --bar-min-height: 48px;
+}
+
+html[data-theme="dark"] {
+  --page-bg: #12141a;
+  --page-fg: #f2f4f8;
+  --page-muted: #9aa0aa;
+  --page-placeholder: #8b909a;
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--page-bg);
+  color: var(--page-fg);
+}

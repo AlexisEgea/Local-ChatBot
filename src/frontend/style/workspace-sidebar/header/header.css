@@ -1,0 +1,22 @@
+/* Header title button: expand the workspace. */
+
+.header {
+  box-sizing: border-box;
+  min-height: var(--bar-min-height);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--control-radius);
+  border: 0;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}

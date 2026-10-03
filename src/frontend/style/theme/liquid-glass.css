@@ -1,0 +1,150 @@
+/* Liquid glass: page blobs, frosted surface, and shared glass chrome. */
+
+:root {
+  --glass-from: rgba(255, 255, 255, 0.58);
+  --glass-to: rgba(255, 255, 255, 0.16);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-inset-top: rgba(255, 255, 255, 0.9);
+  --glass-inset-bottom: rgba(255, 255, 255, 0.08);
+  --glass-drop: rgba(80, 90, 110, 0.12);
+  --center-glow: rgba(255, 255, 255, 0.55);
+  --blob-1: rgba(55, 130, 255, 0.38);
+  --blob-2: rgba(255, 70, 170, 0.28);
+  --blob-3: rgba(40, 210, 110, 0.26);
+  --blob-4: rgba(255, 170, 40, 0.2);
+  --choice-bg: rgba(255, 255, 255, 0.28);
+  --choice-border: rgba(255, 255, 255, 0.45);
+  --liquid-glass-blur: 28px;
+  --liquid-glass-saturate: 180%;
+  --liquid-glass-panel-radius: 22px;
+  --liquid-glass-active-border: rgba(55, 130, 255, 0.55);
+}
+
+html[data-theme="dark"] {
+  --glass-from: rgba(40, 44, 56, 0.72);
+  --glass-to: rgba(18, 20, 28, 0.32);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-inset-top: rgba(255, 255, 255, 0.2);
+  --glass-inset-bottom: rgba(0, 0, 0, 0.22);
+  --glass-drop: rgba(0, 0, 0, 0.38);
+  --center-glow: rgba(255, 255, 255, 0.08);
+  --blob-1: rgba(55, 130, 255, 0.28);
+  --blob-2: rgba(255, 70, 170, 0.2);
+  --blob-3: rgba(40, 210, 110, 0.16);
+  --blob-4: rgba(255, 170, 40, 0.14);
+  --choice-bg: rgba(255, 255, 255, 0.08);
+  --choice-border: rgba(255, 255, 255, 0.16);
+}
+
+/* Soft color washes behind every glass panel. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 42% 32% at 8% 12%, var(--blob-1), transparent 62%),
+    radial-gradient(ellipse 34% 28% at 88% 10%, var(--blob-2), transparent 58%),
+    radial-gradient(ellipse 28% 22% at 72% 78%, var(--blob-3), transparent 55%),
+    radial-gradient(ellipse 36% 30% at 18% 88%, var(--blob-4), transparent 58%);
+}
+
+/* Center highlight so the glass refraction reads better. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 30%, var(--center-glow), transparent 48%);
+}
+
+/* Shared frosted surface: header, bubbles, sidebars, menus, composer. */
+.glass {
+  background: linear-gradient(165deg, var(--glass-from) 0%, var(--glass-to) 100%);
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 1px var(--glass-inset-top),
+    inset 0 -10px 18px var(--glass-inset-bottom),
+    0 10px 28px var(--glass-drop);
+}
+
+/* Same outer curve on Model, rails, bubbles, and Information. */
+.sidebar,
+.side-rail,
+.bubble,
+.model-info {
+  border-radius: var(--liquid-glass-panel-radius);
+}
+
+/* History + Chat Mode layout rows on glass. */
+.history-new-chat,
+.history-item,
+.sidebar-layout {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: var(--control-radius);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.history-item.is-active,
+.sidebar-layout.is-active {
+  border-color: var(--liquid-glass-active-border);
+}
+
+/* Glass context menus (History, header, Model select, messages). */
+.history-menu,
+.header-sidebar,
+.model-menu,
+.message-menu {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 14px;
+}
+
+.model-menu {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.history-menu[hidden],
+.header-sidebar[hidden],
+.model-menu[hidden],
+.message-menu[hidden] {
+  display: none;
+}
+
+.history-menu button,
+.header-sidebar button,
+.model-menu button,
+.message-menu button {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.history-menu button:hover,
+.header-sidebar button:hover,
+.model-menu button:hover,
+.model-menu button.is-active,
+.message-menu button:hover {
+  background: var(--choice-bg);
+}

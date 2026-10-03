@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Local ChatBot</title>
+    <!-- Bundles theme, workspace-sidebar, and conversation styles. -->
+    <link rel="stylesheet" href="./style/main.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css" />
+  </head>
+  <body>
+    <!-- Root shell: click the title to expand the workspace and reveal the menu. -->
+    <div class="app" id="app">
+      <!-- Extra left panel, same width as Chat Mode, shown when expanded. -->
+      <aside class="side-rail" id="sidebar-outer-left" aria-expanded="false" aria-label="History">
+        <div class="side-rail-content" id="history-panel">
+          <section class="sidebar-section">
+            <h2>Conversation</h2>
+            <button type="button" class="history-new-chat glass" id="history-new-chat">
+              New chat
+            </button>
+          </section>
+          <section class="sidebar-section">
+            <h2>History</h2>
+            <div id="history-list" class="history-list"></div>
+          </section>
+        </div>
+      </aside>
+
+      <div class="app-core">
+      <button type="button" class="header glass" id="app-toggle" aria-expanded="false">
+        <h1>Local ChatBot</h1>
+      </button>
+
+      <div class="workspace">
+        <aside class="sidebar glass" id="sidebar" hidden>
+          <section class="sidebar-section">
+            <h2>Model</h2>
+            <label class="model-field">
+              <span>Provider</span>
+              <select id="model-provider" class="model-select"></select>
+            </label>
+            <label class="model-field" id="model-company-field">
+              <span>Company</span>
+              <select id="model-company" class="model-select"></select>
+            </label>
+            <label class="model-field">
+              <span>Model</span>
+              <select id="model-select" class="model-select"></select>
+            </label>
+            <input
+              id="local-model-folder"
+              class="local-folder-input"
+              type="file"
+              webkitdirectory
+              directory
+              tabindex="-1"
+              aria-hidden="true"
+            />
+            <p id="model-description" class="model-description"></p>
+          </section>
+          <section id="model-pricing" class="sidebar-section sidebar-section--pricing" hidden>
+            <h2>Pricing</h2>
+            <div class="model-field">
+              <span>Input (1M tokens)</span>
+              <p id="model-price-input" class="model-info-value glass"></p>
+            </div>
+            <div class="model-field">
+              <span>Output (1M tokens)</span>
+              <p id="model-price-output" class="model-info-value glass"></p>
+            </div>
+          </section>
+          <section class="sidebar-section sidebar-section--params">
+            <h2>Parameters</h2>
+            <div id="model-params" class="model-params"></div>
+          </section>
+        </aside>
+
+        <main class="conversation" id="conversation">
+          <!-- Live message list. Assistant left, user right. -->
+          <div id="chat-thread" class="thread" aria-live="polite">
+            <p class="empty">How can I help you?</p>
+          </div>
+
+          <!-- Input sits inside the conversation; fields change with the selected layout. -->
+          <form id="chat-form" class="composer">
+            <div class="composer-stack glass" id="composer-stack">
+              <div class="composer-picker" id="composer-picker" hidden></div>
+              <div class="composer-row" id="composer-row">
+                <div id="composer-fields" class="composer-fields"></div>
+                <button type="submit" id="chat-send" class="glass" aria-label="Send">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div id="model-info" class="model-info glass" hidden></div>
+        </main>
+      </div>
+      </div>
+
+      <!-- Extra right panel, same width as Chat Mode, shown when expanded. -->
+      <aside class="side-rail" id="sidebar-outer-right" aria-expanded="false" aria-label="Chat Mode">
+        <div class="side-rail-content" id="chat-mode">
+          <section class="sidebar-section">
+            <h2 id="chat-mode-heading">Chat Mode</h2>
+            <label class="model-field">
+              <select id="choose-mode" class="model-select" name="choose-mode" aria-labelledby="chat-mode-heading">
+                <option value="picker" selected>Chat Bar</option>
+                <option value="default">Default</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="sidebar-section" id="default-layout-section" hidden>
+            <h2>chat</h2>
+          </section>
+
+          <section class="sidebar-section">
+            <h2 id="theme-heading">Theme</h2>
+            <label class="model-field">
+              <select id="theme-mode" class="model-select" name="theme-mode" aria-labelledby="theme-heading">
+                <option value="light" selected>Light</option>
+                <option value="dark">Dark</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <div id="theme-custom-section" hidden>
+              <label class="theme-color">
+                Background
+                <input type="color" id="theme-bg-color" value="#e7e9ee" />
+              </label>
+              <label class="theme-color">
+                Liquid glass
+                <input type="color" id="theme-glass-color" value="#ffffff" />
+              </label>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+    <div id="history-menu" class="history-menu glass" hidden>
+      <button type="button" data-action="rename">Rename</button>
+      <button type="button" data-action="delete">Delete</button>
+    </div>
+    <div id="layout-menu" class="history-menu glass" hidden>
+      <button type="button" data-action="edit">Edit</button>
+      <button type="button" data-action="delete">Delete</button>
+    </div>
+    <div id="header-sidebar" class="header-sidebar glass" hidden>
+      <button type="button" data-action="api-keys">API key</button>
+    </div>
+    <div id="api-key-overlay" class="api-key-overlay" hidden>
+      <div class="api-key-dialog glass" role="dialog" aria-modal="true" aria-labelledby="api-key-title">
+        <h2 id="api-key-title">API keys</h2>
+        <div id="api-key-fields" class="api-key-fields"></div>
+        <p id="api-key-error" class="api-key-error" hidden></p>
+        <div class="api-key-actions">
+          <button type="button" id="api-key-save" class="glass">Validate</button>
+        </div>
+      </div>
+    </div>
+    <div id="custom-layout-overlay" class="api-key-overlay" hidden>
+      <div class="api-key-dialog glass" role="dialog" aria-modal="true" aria-labelledby="custom-layout-title">
+        <h2 id="custom-layout-title">Custom Prompt</h2>
+        <label class="api-key-field">
+          <span class="api-key-label">Layout name</span>
+          <div class="api-key-control glass">
+            <input id="custom-layout-name" type="text" autocomplete="off" placeholder="My prompt" />
+          </div>
+        </label>
+        <label class="api-key-field">
+          <span class="api-key-label">Description</span>
+          <div class="api-key-control glass">
+            <input id="custom-layout-description" type="text" autocomplete="off" placeholder="Short description" />
+          </div>
+        </label>
+        <div class="custom-layout-prompts">
+          <div class="custom-layout-head">
+            <span class="api-key-label">Role</span>
+            <span class="api-key-label">Prompt</span>
+          </div>
+          <div id="custom-layout-fields" class="api-key-fields"></div>
+        </div>
+        <button type="button" id="custom-layout-add" class="glass custom-layout-add">Add prompt</button>
+        <p id="custom-layout-error" class="api-key-error" hidden></p>
+        <div class="api-key-actions">
+          <button type="button" id="custom-layout-save" class="glass">Save</button>
+        </div>
+      </div>
+    </div>
+    <div id="model-menu" class="model-menu glass" hidden></div>
+    <div id="message-menu" class="message-menu glass" hidden></div>
+    <script type="module" src="./script/main.js"></script>
+  </body>
+</html>

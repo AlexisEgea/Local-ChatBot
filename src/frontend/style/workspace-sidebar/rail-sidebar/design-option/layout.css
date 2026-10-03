@@ -1,0 +1,22 @@
+/* Chat Mode panel: how to pick a layout and the default-layout buttons. */
+
+.sidebar-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sidebar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.sidebar-layout span {
+  font-size: 12px;
+  color: var(--page-muted);
+}
