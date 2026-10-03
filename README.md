@@ -87,7 +87,7 @@ In Default mode, right-click a prompt layout to edit or delete it.
 Theme setting personalizes the project's appearance with different color schemes:
 - `Light`: bright and clean interface with a white background and standard accent colors.
 - `Dark`: deep black background for a sleek, low-light experience.
-- `Custom`: fully customizable palette—colors can be chosen for the background and all liquid glass UI elements (conversation bar, buttons, sidebar, etc.).
+- `Custom`: fully customizable palette-colors can be chosen for the background and all liquid glass UI elements (conversation bar, buttons, sidebar, etc.).
 
 Click the right rail to open the configuration sidebar:
 <img src="./data/documentation/chat_setting_sidebar.png" alt="Configuration sidebar" width="100%">
