@@ -8,8 +8,8 @@ This project is a minimalist chat interface you run on your own machine to talk 
 
 ## Project
 
-The workspace is meant to stay fully transparent and readable: you see where a model comes from, how a turn is built, and which settings apply before you send.
-Models can be loaded locally or reached through a provider. Each one exposes its parameters so you can tune the run instead of relying on hidden defaults.
+The workspace is meant to stay fully transparent and readable: you see where a model comes from, how a turn is built, and which settings apply before you send.  
+Models can be loaded locally or reached through a provider. Each one exposes its parameters so you can tune the run instead of relying on hidden defaults.  
 The usual pieces of a chat product are here as well: sending a turn, keeping threads, and controlling how the reply is produced.
 
 ## Features
@@ -17,7 +17,6 @@ The usual pieces of a chat product are here as well: sending a turn, keeping thr
 The interface looks small on purpose. The sections below cover what you need to know to use it.
 
 ### Providers
----
 
 Providers list models from each company and expose what the UI can show (parameters, pricing, and so on).
 
@@ -37,7 +36,6 @@ To use providers that require an API key, right-click the **Local ChatBot** head
 On the API Key overlay, you can test your keys and save them to the `infra/env` file.
 
 ### Prompt layouts
----
 
 Public chat UIs often hide how a prompt is built. This is one of the features I wanted to make visible: you see every field that goes to the model, with a clear role, and nothing extra is added behind the scenes.
 
@@ -52,7 +50,6 @@ To switch layout, click the area between the thread and the prompt bar (Chat Bar
 <img src="./data/documentation/chat_layout.png" alt="Layout picker" width="100%">
 
 ### Conversation History
----
 
 Like other chat UIs, you can start a new chat and keep past threads. Conversations are stored locally as JSON under `data/history/`.
 
@@ -69,7 +66,6 @@ Click the left rail to open the conversation sidebar:
 <img src="./data/documentation/chat_conversation_sidebar.png" alt="Conversation sidebar" width="100%">
 
 ### Project Settings
----
 
 Chat Mode allows you to select your layout in two ways:
 - `Chat Bar`: pick the prompt layout from the conversation column.
@@ -86,7 +82,6 @@ Click the right rail to open the configuration sidebar:
 <img src="./data/documentation/chat_setting_sidebar.png" alt="Configuration sidebar" width="100%">
 
 ### Conversation
----
 
 Here is the list of actions available in the current conversation:
 
